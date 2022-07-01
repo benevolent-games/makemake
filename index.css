@@ -86,3 +86,11 @@ header > div {
 header p {
 	margin: 0.67em auto;
 }
+
+.demo canvas {
+	display: block;
+	width: 100%;
+	height: 50%;
+	background: #0002;
+	border-radius: 0.3em;
+}

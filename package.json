@@ -25,6 +25,7 @@
 		"games"
 	],
 	"dependencies": {
+		"@babylonjs/core": "^5.13.3",
 		"es-module-shims": "^1.5.5"
 	},
 	"devDependencies": {
