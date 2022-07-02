@@ -38,8 +38,9 @@ jobs:
 
     - name: 🗃️ reconstitute node_modules for production
       run: |
+
         rm -rf node_modules
-        npm ci --production
+        MAKEMAKE_IGNORE_POSTINSTALL="yes" npm ci --production
 
     - name: ✍️ write cname and nojekyll
       run: |
