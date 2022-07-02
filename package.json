@@ -11,7 +11,7 @@
 	],
 	"main": "x/makemake.js",
 	"scripts": {
-		"postinstall": "if [[ -z \"$MAKEMAKE_IGNORE_POSTINSTALL\" ]]; then run-p hack-babylon hack-simplex-noise; fi",
+		"postinstall": "if test -z \"$MAKEMAKE_IGNORE_POSTINSTALL\"; then run-p hack-babylon hack-simplex-noise; fi",
 		"hack-babylon": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
 		"hack-simplex-noise": "p=$(node build/remove-exports-field.js < node_modules/simplex-noise/package.json) && echo \"$p\" > node_modules/simplex-noise/package.json",
 		"build": "run-s clean && run-p compile importly && run-p bundledemo",
