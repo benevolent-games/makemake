@@ -11,6 +11,7 @@
 	],
 	"main": "x/makemake.js",
 	"scripts": {
+		"postinstall": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
 		"build": "run-s clean && run-p compile importly",
 		"clean": "rimraf x && mkdirp x",
 		"compile": "tsc",
@@ -26,7 +27,8 @@
 	],
 	"dependencies": {
 		"@babylonjs/core": "^5.13.3",
-		"es-module-shims": "^1.5.5"
+		"es-module-shims": "^1.5.5",
+		"simplex-noise": "^3.0.1"
 	},
 	"devDependencies": {
 		"cynic": "0.1.0-dev.16",
