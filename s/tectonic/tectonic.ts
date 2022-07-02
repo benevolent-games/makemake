@@ -2,7 +2,7 @@
 import {V2} from "../toolbox/v2.js"
 import {V3, v3} from "../toolbox/v3.js"
 
-import SimplexNoise from "simplex-noise/dist/esm/simplex-noise.js"
+import {SimplexNoise} from "simplex-noise/dist/esm/simplex-noise.js"
 
 import {Scene} from "@babylonjs/core/scene.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
@@ -76,12 +76,8 @@ export async function generateTerrain({
 		},
 	})
 
-	return {ground, light: sun}
+	return {ground, sun}
 }
-
-////////
-////////
-////////
 
 function makeGround({scene, size, resolution, wireframe}: {
 		scene: Scene

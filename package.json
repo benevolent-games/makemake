@@ -11,11 +11,15 @@
 	],
 	"main": "x/makemake.js",
 	"scripts": {
-		"postinstall": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
-		"build": "run-s clean && run-p compile importly",
+		"postinstall": "run-p hack-babylon hack-simplex-noise",
+		"hack-babylon": "rimraf node_modules/@babylonjs/core/index.d.ts node_modules/@babylonjs/core/index.js",
+		"hack-simplex-noise": "p=$(build/remove-exports-field.js < node_modules/simplex-noise/package.json) && echo \"$p\" > node_modules/simplex-noise/package.json",
+		"build": "run-s clean && run-p compile importly && run-p bundledemo",
 		"clean": "rimraf x && mkdirp x",
 		"compile": "tsc",
 		"importly": "importly < package-lock.json > x/importmap.json",
+		"bundledemo": "time (rollup x/demo.js --plugin @rollup/plugin-node-resolve --format iife --file x/demo.bundle.js && terser --compress --mangle -- x/demo.bundle.js > x/demo.bundle.min.js && echo 'done demo.bundle.min.js')",
+		"bundledemo-watch": "chokidar 'x/**/*.js' -i 'x/**/*.{bundle.js,min.js}' -c 'npm run -s bundledemo'",
 		"watch": "tsc -w",
 		"start": "http-server",
 		"test": "cynic node x/tests.test.js"
@@ -31,12 +35,16 @@
 		"simplex-noise": "^3.0.1"
 	},
 	"devDependencies": {
+		"@rollup/plugin-node-resolve": "^13.3.0",
+		"chokidar-cli": "^3.0.0",
 		"cynic": "0.1.0-dev.16",
 		"http-server": "^14.1.0",
 		"importly": "^0.2.0",
 		"mkdirp": "^1.0.4",
 		"npm-run-all": "^4.1.5",
 		"rimraf": "^3.0.2",
+		"rollup": "^2.75.7",
+		"terser": "^5.14.1",
 		"typescript": "^4.7.2"
 	}
 }
