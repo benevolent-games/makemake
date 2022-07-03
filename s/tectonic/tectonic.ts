@@ -8,6 +8,7 @@ import {Scene} from "@babylonjs/core/scene.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {FloatArray} from "@babylonjs/core/types.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
+import {loadShader} from "../toolbox/babylon/load-shader.js"
 import {VertexBuffer} from "@babylonjs/core/Buffers/buffer.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {VertexData} from "@babylonjs/core/Meshes/mesh.vertexData.js"
@@ -28,7 +29,12 @@ export interface BasicOptions {
 export async function makeRtsWorld(options: BasicOptions) {
 	const seed = Math.random()
 	const aerial = await makeAerialCamera(options)
-	const terrain = await generateTerrain({...options, seed})
+	const terrain = await generateTerrain({
+		...options,
+		seed,
+		cliffSlopeFactor: 0.3,
+		groundShaderUrl: "https://dl.dropbox.com/s/6ikrt6g3n027h8d/terrainShader1.json",
+	})
 }
 
 export async function makeAerialCamera({scene, canvas}: BasicOptions) {
@@ -47,11 +53,17 @@ export async function makeAerialCamera({scene, canvas}: BasicOptions) {
 export async function generateTerrain({
 		seed,
 		scene,
-	}: BasicOptions & {seed: number}) {
+		groundShaderUrl,
+		cliffSlopeFactor,
+	}: BasicOptions & {
+		seed: number
+		groundShaderUrl: string
+		cliffSlopeFactor: number
+	}) {
 
 	const sunDirection = v3.toBabylon([-2, -1, -1])
 	const sun = new DirectionalLight("light", sunDirection, scene)
-	sun.intensity = 2
+	sun.intensity = 1.5
 
 	const ground = makeGround({
 		scene,
@@ -75,6 +87,14 @@ export async function generateTerrain({
 			amplitude: 0.5,
 		},
 	})
+
+	const shader = await loadShader({
+		scene,
+		url: groundShaderUrl,
+		label: "groundshader",
+	})
+	shader.assignInputs({cliffSlopeFactor})
+	ground.material = shader.material
 
 	return {ground, sun}
 }
