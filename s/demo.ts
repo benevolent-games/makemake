@@ -11,12 +11,12 @@ void async function() {
 	const demo = document.querySelector<HTMLElement>(".demo")!
 	const canvas = document.createElement("canvas")
 	demo.appendChild(canvas)
-	
+
 	const engine = new Engine(canvas, true)
 	const scene = new Scene(engine)
 	scene.clearColor = new Color4(0, 0, 0, 0)
-	scene.ambientColor = new Color3(0.1, 0.1, 0.1)
-	
+	scene.ambientColor = new Color3(0.02, 0.02, 0.02)
+
 	await makeRtsWorld({scene, canvas})
 
 	engine.runRenderLoop(() => scene.render())

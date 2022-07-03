@@ -4,9 +4,13 @@ import {V3, v3} from "../toolbox/v3.js"
 
 import {SimplexNoise} from "simplex-noise/dist/esm/simplex-noise.js"
 
+import "@babylonjs/loaders/glTF/2.0/index.js"
+
 import {Scene} from "@babylonjs/core/scene.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {FloatArray} from "@babylonjs/core/types.js"
+import {easing, Easing} from "../toolbox/easing.js"
+import {loadGlb} from "../toolbox/babylon/load-glb.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {loadShader} from "../toolbox/babylon/load-shader.js"
 import {VertexBuffer} from "@babylonjs/core/Buffers/buffer.js"
@@ -32,9 +36,54 @@ export async function makeRtsWorld(options: BasicOptions) {
 	const terrain = await generateTerrain({
 		...options,
 		seed,
-		cliffSlopeFactor: 0.3,
+		cliffSlopeFactor: 0.4,
+		layers: [
+			{
+				scale: 400,
+				amplitude: 35,
+				ease: easing.linear,
+			},
+			{
+				scale: 300,
+				amplitude: 25,
+				ease: x => easing.exponential(x - 0.2),
+			},
+			{
+				scale: 200,
+				amplitude: 15,
+				ease: easing.linear,
+			},
+			{
+				scale: 72,
+				amplitude: 5,
+				ease: easing.linear,
+			},
+			{
+				scale: 11,
+				amplitude: 0.8,
+				ease: easing.linear,
+			},
+		],
 		groundShaderUrl: "https://dl.dropbox.com/s/6ikrt6g3n027h8d/terrainShader1.json",
 	})
+	terrain.ground.position.y -= 80
+	const props = await loadGlb(
+		options.scene,
+		"https://dl.dropbox.com/s/9p0k1aacrcy8c9q/forestAssetPack2.glb",
+	)
+	const ambientColor = new Color3(1, 1, 1)
+	for (const material of props.materials) {
+		if (material instanceof PBRMaterial)
+			material.ambientColor = ambientColor
+	}
+	const leaves = <PBRMaterial>props.materials.find(m => m.name === "treeleaves")!
+	// console.log(leaves)
+	leaves.alphaCutOff = 0.35
+	// console.log(leaves.alphaCutOff)
+	// leaves.alphaMode = Material.MATERIAL_ALPHABLEND
+	// const tex = <Texture>leaves.getActiveTextures()[0]
+	// console.log(tex.anisotropicFilteringLevel)
+	// console.log(tex)
 }
 
 export async function makeAerialCamera({scene, canvas}: BasicOptions) {
@@ -43,7 +92,7 @@ export async function makeAerialCamera({scene, canvas}: BasicOptions) {
 		"cam",
 		circle / 6,
 		circle / 6,
-		10,
+		50,
 		v3.toBabylon([0, 5, 0]),
 		scene,
 	)
@@ -53,39 +102,33 @@ export async function makeAerialCamera({scene, canvas}: BasicOptions) {
 export async function generateTerrain({
 		seed,
 		scene,
+		layers,
 		groundShaderUrl,
 		cliffSlopeFactor,
 	}: BasicOptions & {
 		seed: number
+		layers: NoiseLayer[]
 		groundShaderUrl: string
 		cliffSlopeFactor: number
 	}) {
 
-	const sunDirection = v3.toBabylon([-2, -1, -1])
+	const sunDirection = v3.toBabylon([-.2, -1, -.5])
 	const sun = new DirectionalLight("light", sunDirection, scene)
 	sun.intensity = 1.5
 
 	const ground = makeGround({
 		scene,
-		size: 50,
-		resolution: 20,
+		size: 1000,
+		resolution: 500,
 		wireframe: false,
 	})
 
-	const seed2 = (seed + 0.5) % 1
+	const {noise2d} = prepareSmartNoise(seed)
 
 	morphTerrainRandomly({
 		ground,
-		big: {
-			generator: new SimplexNoise(seed),
-			scale: 20,
-			amplitude: 2,
-		},
-		small: {
-			generator: new SimplexNoise(seed2),
-			scale: 5,
-			amplitude: 0.5,
-		},
+		layers,
+		noise2d,
 	})
 
 	const shader = await loadShader({
@@ -110,7 +153,7 @@ function makeGround({scene, size, resolution, wireframe}: {
 		height: size,
 		subdivisions: resolution,
 		updatable: true,
-	}, scene);
+	}, scene)
 	const material = new PBRMaterial("groundmaterial", scene)
 	material.ambientColor = new Color3(1, 1, 1)
 	material.albedoColor = new Color3(0.75, 0.61, 0.44)
@@ -126,26 +169,64 @@ type Vertex = {
 	normal: V3
 }
 
-type NoiseDetail = {
-	generator: SimplexNoise
+type NoiseLayer = {
 	scale: number
 	amplitude: number
+	ease: Easing
 }
 
-function morphTerrainRandomly({ground, big, small}: {
+function prepareSmartNoise(seed: number) {
+	const generator = new SimplexNoise(seed)
+	return {
+		noise2d(x: number, y: number) {
+			return generator.noise2D(x, y)
+		},
+	}
+}
+
+function prepareDumbNoise(seed: number) {
+	seed += 999_999
+	const {sin, PI: pi} = Math
+	const twitch = pi / 3
+	const seedOffset = 999
+	function wave(x: number) {
+		return (sin(2 * x) + sin(pi * x) + 1) / 2
+	}
+	function noise1d(x: number) {
+		x += seed * seedOffset
+		return (wave(x) + wave((x * 0.11) + 666.6)) / 2
+	}
+	function noise2d(x: number, y: number) {
+		return (
+			noise1d(x) +
+			noise1d(y) +
+			noise1d(x + y)
+		) / 3
+	}
+	return {noise1d, noise2d}
+}
+
+export type Noise2d = (x: number, y: number) => number
+
+function morphTerrainRandomly({ground, layers, noise2d}: {
 		ground: Mesh
-		big: NoiseDetail
-		small: NoiseDetail
+		layers: NoiseLayer[]
+		noise2d: Noise2d
 	}) {
 
-	function noise({generator, scale, amplitude}: NoiseDetail, x: number, y: number) {
-		return generator.noise2D(x / scale, y / scale) * amplitude
-	}
+	const offsetBetweenEachLayer = 100_000
 
 	function displace(x: number, y: number, z: number): V3 {
-		const factorA = noise(big, x, z)
-		const factorB = noise(small, x, z)
-		const factor = factorA + factorB
+		let factor = 0
+		layers.forEach(({scale: frequency, amplitude, ease}, index) => {
+			const offset = index * offsetBetweenEachLayer
+			const rawNoise = noise2d(
+				offset + (x / frequency),
+				offset + (z / frequency),
+			)
+			const noise = (rawNoise + 1) / 2
+			factor += ease(noise) * amplitude
+		})
 		return [x, y + factor, z]
 	}
 
