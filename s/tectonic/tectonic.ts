@@ -33,7 +33,7 @@ export interface BasicOptions {
 export async function makeRtsWorld(options: BasicOptions) {
 	const seed = Math.random()
 	const aerial = await makeAerialCamera(options)
-	const terrain = await generateTerrain({
+	const terrain = await makeTerrain({
 		...options,
 		seed,
 		cliffSlopeFactor: 0.4,
@@ -99,7 +99,37 @@ export async function makeAerialCamera({scene, canvas}: BasicOptions) {
 	camera.attachControl(canvas, true)
 }
 
-export async function generateTerrain({
+type TerrainGenerator = ReturnType<typeof prepareTerrainGenerator>
+
+function prepareTerrainGenerator({
+		seed, layers,
+	}: {
+		seed: number
+		layers: NoiseLayer[]
+		cliffSlopeFactor: number
+	}) {
+
+	const {noise2d} = prepareSmartNoise(seed)
+	const offsetBetweenEachLayer = 100_000
+
+	function sampleHeight(x: number, y: number) {
+		let factor = 0
+		layers.forEach(({scale: frequency, amplitude, ease}, index) => {
+			const offset = index * offsetBetweenEachLayer
+			const rawNoise = noise2d(
+				offset + (x / frequency),
+				offset + (y / frequency),
+			)
+			const noise = (rawNoise + 1) / 2
+			factor += ease(noise) * amplitude
+		})
+		return factor
+	}
+
+	return {sampleHeight}
+}
+
+export async function makeTerrain({
 		seed,
 		scene,
 		layers,
@@ -116,6 +146,12 @@ export async function generateTerrain({
 	const sun = new DirectionalLight("light", sunDirection, scene)
 	sun.intensity = 1.5
 
+	const terrainGenerator = prepareTerrainGenerator({
+		seed,
+		layers,
+		cliffSlopeFactor,
+	})
+
 	const ground = makeGround({
 		scene,
 		size: 1000,
@@ -123,12 +159,9 @@ export async function generateTerrain({
 		wireframe: false,
 	})
 
-	const {noise2d} = prepareSmartNoise(seed)
-
-	morphTerrainRandomly({
+	morphGround({
 		ground,
-		layers,
-		noise2d,
+		terrainGenerator,
 	})
 
 	const shader = await loadShader({
@@ -208,26 +241,13 @@ function prepareDumbNoise(seed: number) {
 
 export type Noise2d = (x: number, y: number) => number
 
-function morphTerrainRandomly({ground, layers, noise2d}: {
+function morphGround({ground, terrainGenerator}: {
 		ground: Mesh
-		layers: NoiseLayer[]
-		noise2d: Noise2d
+		terrainGenerator: TerrainGenerator
 	}) {
 
-	const offsetBetweenEachLayer = 100_000
-
 	function displace(x: number, y: number, z: number): V3 {
-		let factor = 0
-		layers.forEach(({scale: frequency, amplitude, ease}, index) => {
-			const offset = index * offsetBetweenEachLayer
-			const rawNoise = noise2d(
-				offset + (x / frequency),
-				offset + (z / frequency),
-			)
-			const noise = (rawNoise + 1) / 2
-			factor += ease(noise) * amplitude
-		})
-		return [x, y + factor, z]
+		return [x, y + terrainGenerator.sampleHeight(x, z), z]
 	}
 
 	const positions = ground.getVerticesData(VertexBuffer.PositionKind)!
