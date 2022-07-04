@@ -25,4 +25,6 @@ void async function() {
 			routine()
 		scene.render()
 	})
+
+	;(<any>window).engine = engine
 }()

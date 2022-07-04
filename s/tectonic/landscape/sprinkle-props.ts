@@ -3,24 +3,28 @@ import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
-import {v3} from "../../toolbox/v3.js"
 import {BasicOptions} from "../types.js"
 import {ShadowControl} from "./lighting.js"
 import {Randomly} from "../../toolbox/randomly.js"
 import {TerrainGenerator} from "./terrain-generator.js"
 import {loadGlb} from "../../toolbox/babylon/load-glb.js"
+import {sprinkleTrees, TreeDetails} from "./sprinkling/trees.js"
 
 export async function sprinkleProps({
 		scene,
 		mapSize,
 		randomly,
+		treeDetails,
 		shadowControl,
+		cliffSlopeFactor,
 		terrainGenerator,
 	}: BasicOptions & {
 		mapSize: number
 		randomly: Randomly
 		shadowControl: ShadowControl
+		cliffSlopeFactor: number
 		terrainGenerator: TerrainGenerator
+		treeDetails: TreeDetails
 	}) {
 
 	const assets = await loadGlb(
@@ -45,23 +49,16 @@ export async function sprinkleProps({
 	leaves.subSurface.isTranslucencyEnabled = true
 	leaves.subSurface.translucencyIntensity = 0.8
 
-	// spawn trees
-	const tree1 = <Mesh[]>assets.meshes.filter(m => m.name.startsWith("tree1"))
-	const [tree1a, tree1b] = tree1
-	for (let index = 0; index < 5000; index += 1) {
-		const x = (randomly.random() * mapSize) - (mapSize / 2)
-		const y = (randomly.random() * mapSize) - (mapSize / 2)
-		const density = terrainGenerator.sampleTreeDensity(x, y)
-		const alive = randomly.random() < density
-		if (alive) {
-			const height = terrainGenerator.sampleHeight(x, y)
-			const position = v3.toBabylon([x, height, y])
-			const a = tree1a.createInstance("tree1a_" + index)
-			const b = tree1b.createInstance("tree1b_" + index)
-			shadowControl.addCaster(a)
-			shadowControl.addCaster(b)
-			a.setAbsolutePosition(position)
-			b.setAbsolutePosition(position)
-		}
-	}
+	sprinkleTrees({
+		mapSize,
+		randomly,
+		shadowControl,
+		terrainGenerator,
+		cliffSlopeFactor,
+		treeDetails,
+		treeBases: [
+			<Mesh[]>assets.meshes.filter(m => m.name.startsWith("tree1")),
+			<Mesh[]>assets.meshes.filter(m => m.name.startsWith("tree2")),
+		],
+	})
 }

@@ -13,6 +13,7 @@ import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
 
 export async function makeRtsWorld(options: BasicOptions) {
 	const mapSize = 1000
+	const cliffSlopeFactor = 0.4
 	const randomly = makeRandomToolkit()
 
 	makeAerialCamera(options)
@@ -34,8 +35,8 @@ export async function makeRtsWorld(options: BasicOptions) {
 		mapSize,
 		resolution: 256,
 		terrainGenerator,
+		cliffSlopeFactor,
 		normalStrength: 1,
-		cliffSlopeFactor: 0.4,
 		groundShaderUrl: "https://dl.dropbox.com/s/may8ifijik7mwms/terrainShader2.json",
 	})
 
@@ -54,6 +55,16 @@ export async function makeRtsWorld(options: BasicOptions) {
 		mapSize,
 		randomly,
 		shadowControl,
+		cliffSlopeFactor,
 		terrainGenerator,
+		treeDetails: {
+			numberOfTrees: 1_000,
+			spaceBetweenTrees: 7,
+			maxTreePlantingAttempts: 50_000,
+			randomizationRanges: {
+				scale: {min: 0.5, max: 1.5},
+				heightAdjustment: {min: -1, max: 5},
+			},
+		},
 	})
 }

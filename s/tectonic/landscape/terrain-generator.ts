@@ -1,5 +1,6 @@
 
 import {NoiseLayer} from "../types.js"
+import {v3, V3} from "../../toolbox/v3.js"
 import {Randomly} from "../../toolbox/randomly.js"
 import {prepareNoise} from "../../toolbox/noise.js"
 
@@ -37,6 +38,26 @@ export function makeTerrainGenerator({
 		return factor - halfAmplitude
 	}
 
+	function sampleNormal(x: number, z: number) {
+		const offset = 0.5
+		const point_base = <V3>[x, sampleHeight(x, z), z]
+		const point_north = <V3>[x, sampleHeight(x, z + offset), z + offset]
+		const point_east = <V3>[x - offset, sampleHeight(x - offset, z), z]
+		
+		const vector_north = v3.normalize(v3.subtract(point_north, point_base))
+		const vector_east = v3.normalize(v3.subtract(point_east, point_base))
+
+		const surface_normal = v3.normalize(v3.cross(vector_east, vector_north))
+		return surface_normal
+	}
+
+	const up = <V3>[0, 1, 0]
+	function sampleSlope(x: number, y: number) {
+		const normal = sampleNormal(x, y)
+		const dot = v3.dot(normal, up)
+		return Math.acos(dot)
+	}
+
 	function sampleTreeDensity(x: number, y: number) {
 		const offset = -696969
 		return noise2d(
@@ -45,5 +66,10 @@ export function makeTerrainGenerator({
 		)
 	}
 
-	return {sampleHeight, sampleTreeDensity}
+	return {
+		sampleHeight,
+		sampleNormal,
+		sampleSlope,
+		sampleTreeDensity,
+	}
 }

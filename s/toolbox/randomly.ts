@@ -5,6 +5,7 @@ export interface Randomly {
 	random(): number
 	randomSelect<T>(stuff: T[]): T
 	randomBoolean(percentChanceOfTrue: number): boolean
+	randomBetween(min: number, max: number): number
 }
 
 export function makeRandomToolkit(seed: number = Math.random()): Randomly {
@@ -25,6 +26,11 @@ export function makeRandomToolkit(seed: number = Math.random()): Randomly {
 		},
 		randomBoolean(percentChanceOfTrue) {
 			return random() < (percentChanceOfTrue / 100)
+		},
+		randomBetween(min, max) {
+			const range = max - min
+			const amount = random() * range
+			return min + amount
 		},
 	}
 }
