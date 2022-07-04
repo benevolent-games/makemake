@@ -74,6 +74,7 @@ export function sprinkleTrees({
 
 	let count = 0
 	for (const [x, y, z] of treePositions) {
+		const scale = between(randomizationRanges.scale)
 		const height = between(randomizationRanges.heightAdjustment)
 		const position2 = v3.toBabylon([x, y + height, z])
 		const meshes = randomly.randomSelect(treeBases)
@@ -82,7 +83,6 @@ export function sprinkleTrees({
 			shadowControl.addCaster(instance)
 			instance.setAbsolutePosition(position2)
 			instance.rotate(Vector3.Up(), randomly.random() * (Math.PI * 2))
-			const scale = between(randomizationRanges.scale)
 			instance.scaling = new Vector3(scale, scale, scale)
 		}
 	}
