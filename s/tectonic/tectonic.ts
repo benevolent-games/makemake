@@ -33,7 +33,7 @@ export async function makeRtsWorld(options: BasicOptions) {
 	await makeGround({
 		...options,
 		mapSize,
-		resolution: 256,
+		resolution: 512,
 		terrainGenerator,
 		cliffSlopeFactor,
 		normalStrength: 1,
