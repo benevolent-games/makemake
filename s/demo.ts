@@ -15,7 +15,7 @@ void async function() {
 	const engine = new Engine(canvas, true)
 	const scene = new Scene(engine)
 	scene.clearColor = new Color4(0, 0, 0, 0)
-	scene.ambientColor = new Color3(0.02, 0.02, 0.02)
+	scene.ambientColor = new Color3(0.005, 0.005, 0.005)
 
 	await makeRtsWorld({scene, canvas})
 

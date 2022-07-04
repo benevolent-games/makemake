@@ -5,6 +5,7 @@ import {V3, v3} from "../toolbox/v3.js"
 import {SimplexNoise} from "simplex-noise/dist/esm/simplex-noise.js"
 
 import "@babylonjs/loaders/glTF/2.0/index.js"
+import "@babylonjs/core/Lights/Shadows/index.js"
 
 import {Scene} from "@babylonjs/core/scene.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
@@ -19,6 +20,11 @@ import {VertexData} from "@babylonjs/core/Meshes/mesh.vertexData.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 import {ArcRotateCamera} from "@babylonjs/core/Cameras/arcRotateCamera.js"
 import {DirectionalLight} from "@babylonjs/core/Lights/directionalLight.js"
+import {Vector3} from "@babylonjs/core/Maths/math.js"
+import {pseudoRandomTools, randomSeed} from "../toolbox/random.js"
+import {ShadowGenerator} from "@babylonjs/core/Lights/Shadows/shadowGenerator.js"
+import {AbstractMesh} from "@babylonjs/core/Meshes/abstractMesh.js"
+import {GroundMesh} from "@babylonjs/core/Meshes/groundMesh.js"
 
 export interface ArenaSpecification {
 	size: V2
@@ -31,12 +37,16 @@ export interface BasicOptions {
 }
 
 export async function makeRtsWorld(options: BasicOptions) {
-	const seed = Math.random()
+	const mapSize = 1000
+
 	const aerial = await makeAerialCamera(options)
-	const terrain = await makeTerrain({
-		...options,
+
+	const seed = Math.random()
+	const randomTools = pseudoRandomTools(randomSeed())
+
+	const terrainGenerator = prepareTerrainGenerator({
 		seed,
-		cliffSlopeFactor: 0.4,
+		treeDensityScale: 200,
 		layers: [
 			{
 				scale: 400,
@@ -64,14 +74,26 @@ export async function makeRtsWorld(options: BasicOptions) {
 				ease: easing.linear,
 			},
 		],
-		groundShaderUrl: "https://dl.dropbox.com/s/6ikrt6g3n027h8d/terrainShader1.json",
 	})
-	terrain.ground.position.y -= 80
+
+	const terrain = await makeTerrain({
+		...options,
+		mapSize,
+		terrainGenerator,
+		cliffSlopeFactor: 0.4,
+		groundShaderUrl: "https://dl.dropbox.com/s/may8ifijik7mwms/terrainShader2.json",
+	})
 	const props = await loadGlb(
 		options.scene,
 		"https://dl.dropbox.com/s/9p0k1aacrcy8c9q/forestAssetPack2.glb",
 	)
 	const ambientColor = new Color3(1, 1, 1)
+
+	// terrain.sun.shadowMinZ = 100
+	// terrain.sun.shadowMaxZ = 500
+	// const shadowGenerator = new ShadowGenerator(1024, terrain.sun)
+	const shadowSet = new Set<AbstractMesh>()
+
 	for (const material of props.materials) {
 		if (material instanceof PBRMaterial)
 			material.ambientColor = ambientColor
@@ -79,11 +101,61 @@ export async function makeRtsWorld(options: BasicOptions) {
 	const leaves = <PBRMaterial>props.materials.find(m => m.name === "treeleaves")!
 	// console.log(leaves)
 	leaves.alphaCutOff = 0.35
+	leaves.subSurface.isTranslucencyEnabled = true
+	leaves.subSurface.translucencyIntensity = 0.8
 	// console.log(leaves.alphaCutOff)
 	// leaves.alphaMode = Material.MATERIAL_ALPHABLEND
 	// const tex = <Texture>leaves.getActiveTextures()[0]
 	// console.log(tex.anisotropicFilteringLevel)
 	// console.log(tex)
+	// console.log(props.meshes.map(m => m.name))
+	const tree1 = <Mesh[]>props.meshes.filter(m => m.name.startsWith("tree1"))
+	// console.log(props.materials.map(m => m.name))
+	
+	// hide all base meshes
+	for (const mesh of props.meshes)
+		mesh.isVisible = false
+
+	const [tree1a, tree1b] = tree1
+
+	for (let index = 0; index < 5000; index += 1) {
+		const x = (randomTools.random() * mapSize) - (mapSize / 2)
+		const y = (randomTools.random() * mapSize) - (mapSize / 2)
+		const density = terrainGenerator.sampleTreeDensity(x, y)
+		const alive = randomTools.random() < density
+		if (alive) {
+			const height = terrainGenerator.sampleHeight(x, y)
+			const position = v3.toBabylon([x, height, y])
+			const a = tree1a.createInstance("tree1a_" + index)
+			const b = tree1b.createInstance("tree1b_" + index)
+			shadowSet.add(a).add(b)
+			a.setAbsolutePosition(position)
+			b.setAbsolutePosition(position)
+		}
+	}
+
+	// shadowGenerator.bias = 0.0001;
+	// shadowGenerator.bias = 0.001;
+	// shadowGenerator.normalBias = 0.02;
+	// terrain.sun.shadowMaxZ = 50
+	// terrain.sun.shadowMinZ = 200
+	// shadowGenerator.useBlurExponentialShadowMap = true;
+	// shadowGenerator.useCloseExponentialShadowMap = true;
+
+	// shadowGenerator.forceBackFacesOnly = true
+	// shadowGenerator.useContactHardeningShadow = true;
+	// shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
+	// shadowGenerator.setDarkness(0.5);
+	terrain.sun.position = v3.toBabylon(
+		v3.multiplyBy(
+			v3.normalize(v3.negate(v3.fromBabylon(terrain.sun.direction))),
+			100
+		)
+	)
+	// shadowGenerator.addShadowCaster(terrain.ground)
+	// for (const caster of shadowSet)
+	// 	shadowGenerator.addShadowCaster(caster)
+	// terrain.ground.receiveShadows = true
 }
 
 export async function makeAerialCamera({scene, canvas}: BasicOptions) {
@@ -102,59 +174,66 @@ export async function makeAerialCamera({scene, canvas}: BasicOptions) {
 type TerrainGenerator = ReturnType<typeof prepareTerrainGenerator>
 
 function prepareTerrainGenerator({
-		seed, layers,
+		seed, layers, treeDensityScale,
 	}: {
 		seed: number
 		layers: NoiseLayer[]
-		cliffSlopeFactor: number
+		treeDensityScale: number
 	}) {
+
+	const maxAmplitude = layers
+		.reduce((previous, current) => previous + current.amplitude, 0)
+
+	const halfAmplitude = maxAmplitude / 2
 
 	const {noise2d} = prepareSmartNoise(seed)
 	const offsetBetweenEachLayer = 100_000
 
 	function sampleHeight(x: number, y: number) {
 		let factor = 0
-		layers.forEach(({scale: frequency, amplitude, ease}, index) => {
+		layers.forEach(({scale, amplitude, ease}, index) => {
 			const offset = index * offsetBetweenEachLayer
 			const rawNoise = noise2d(
-				offset + (x / frequency),
-				offset + (y / frequency),
+				offset + (x / scale),
+				offset + (y / scale),
 			)
 			const noise = (rawNoise + 1) / 2
 			factor += ease(noise) * amplitude
 		})
-		return factor
+		return factor - halfAmplitude
 	}
 
-	return {sampleHeight}
+	function sampleTreeDensity(x: number, y: number) {
+		const offset = -696969
+		return noise2d(
+			offset + (x / treeDensityScale),
+			offset + (y / treeDensityScale),
+		)
+	}
+
+	return {sampleHeight, sampleTreeDensity}
 }
 
 export async function makeTerrain({
-		seed,
 		scene,
-		layers,
+		mapSize,
 		groundShaderUrl,
 		cliffSlopeFactor,
+		terrainGenerator,
 	}: BasicOptions & {
-		seed: number
-		layers: NoiseLayer[]
+		mapSize: number
 		groundShaderUrl: string
 		cliffSlopeFactor: number
+		terrainGenerator: TerrainGenerator
 	}) {
 
-	const sunDirection = v3.toBabylon([-.2, -1, -.5])
+	const sunDirection = v3.toBabylon([-1, -1, -1])
 	const sun = new DirectionalLight("light", sunDirection, scene)
 	sun.intensity = 1.5
 
-	const terrainGenerator = prepareTerrainGenerator({
-		seed,
-		layers,
-		cliffSlopeFactor,
-	})
-
 	const ground = makeGround({
 		scene,
-		size: 1000,
+		size: mapSize,
 		resolution: 500,
 		wireframe: false,
 	})
@@ -169,7 +248,7 @@ export async function makeTerrain({
 		url: groundShaderUrl,
 		label: "groundshader",
 	})
-	shader.assignInputs({cliffSlopeFactor})
+	shader.assignInputs({cliffSlopeFactor, normalStrength: 1})
 	ground.material = shader.material
 
 	return {ground, sun}
