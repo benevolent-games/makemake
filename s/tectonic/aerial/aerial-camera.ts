@@ -1,9 +1,10 @@
 
-import {v3} from "../../toolbox/v3.js"
-import {BasicOptions} from "../types.js"
 import {ArcRotateCamera} from "@babylonjs/core/Cameras/arcRotateCamera.js"
 
-export function makeAerialCamera({scene, canvas}: BasicOptions) {
+import {v3} from "../../toolbox/v3.js"
+import {Theater} from "../theater/theater.js"
+
+export function makeAerialCamera({theater}: {theater: Theater}) {
 	const circle = 2 * Math.PI
 	const camera = new ArcRotateCamera(
 		"cam",
@@ -11,8 +12,8 @@ export function makeAerialCamera({scene, canvas}: BasicOptions) {
 		circle / 6,
 		50,
 		v3.toBabylon([0, 5, 0]),
-		scene,
+		theater.scene,
 	)
-	camera.attachControl(canvas, true)
+	camera.attachControl(theater.canvas, true)
 	return camera
 }

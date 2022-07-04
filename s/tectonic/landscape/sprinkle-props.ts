@@ -3,22 +3,23 @@ import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {PBRMaterial} from "@babylonjs/core/Materials/PBR/pbrMaterial.js"
 
-import {BasicOptions} from "../types.js"
 import {ShadowControl} from "./lighting.js"
+import {Theater} from "../theater/theater.js"
 import {Randomly} from "../../toolbox/randomly.js"
 import {TerrainGenerator} from "./terrain-generator.js"
 import {loadGlb} from "../../toolbox/babylon/load-glb.js"
 import {sprinkleTrees, TreeDetails} from "./sprinkling/trees.js"
 
 export async function sprinkleProps({
-		scene,
+		theater: {scene},
 		mapSize,
 		randomly,
 		treeDetails,
 		shadowControl,
 		cliffSlopeFactor,
 		terrainGenerator,
-	}: BasicOptions & {
+	}: {
+		theater: Theater
 		mapSize: number
 		randomly: Randomly
 		shadowControl: ShadowControl

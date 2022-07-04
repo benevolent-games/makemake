@@ -1,22 +1,27 @@
 
+import "@babylonjs/core/Materials/standardMaterial.js"
 import "@babylonjs/loaders/glTF/2.0/index.js"
 import "@babylonjs/core/Lights/Shadows/index.js"
 
-import {BasicOptions} from "./types.js"
 import {easing} from "../toolbox/easing.js"
 import {makeGround} from "./landscape/ground.js"
 import {setupLighting} from "./landscape/lighting.js"
 import {makeRandomToolkit} from "../toolbox/randomly.js"
 import {makeAerialCamera} from "./aerial/aerial-camera.js"
 import {sprinkleProps} from "./landscape/sprinkle-props.js"
+import {setupTheater as setupTheater} from "./theater/theater.js"
 import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
 
-export async function makeRtsWorld(options: BasicOptions) {
+export async function makeRtsWorld({container}: {
+		container: HTMLElement
+	}) {
+
+	const theater = setupTheater({container})
 	const mapSize = 1000
 	const cliffSlopeFactor = 0.4
 	const randomly = makeRandomToolkit()
 
-	makeAerialCamera(options)
+	makeAerialCamera({theater})
 
 	const terrainGenerator = makeTerrainGenerator({
 		randomly,
@@ -31,7 +36,7 @@ export async function makeRtsWorld(options: BasicOptions) {
 	})
 
 	await makeGround({
-		...options,
+		theater,
 		mapSize,
 		resolution: 512,
 		terrainGenerator,
@@ -41,7 +46,7 @@ export async function makeRtsWorld(options: BasicOptions) {
 	})
 
 	const {shadowControl} = setupLighting({
-		...options,
+		theater,
 		sun: {
 			direction: [-1, -1, -1],
 			distance: 100,
@@ -51,7 +56,7 @@ export async function makeRtsWorld(options: BasicOptions) {
 	})
 
 	await sprinkleProps({
-		...options,
+		theater,
 		mapSize,
 		randomly,
 		shadowControl,

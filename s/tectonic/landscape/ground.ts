@@ -1,5 +1,4 @@
 
-import {Scene} from "@babylonjs/core/scene.js"
 import {Mesh} from "@babylonjs/core/Meshes/mesh.js"
 import {FloatArray} from "@babylonjs/core/types.js"
 import {VertexBuffer} from "@babylonjs/core/Buffers/buffer.js"
@@ -7,11 +6,12 @@ import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {VertexData} from "@babylonjs/core/Meshes/mesh.vertexData.js"
 
 import {V3} from "../../toolbox/v3.js"
+import {Theater} from "../theater/theater.js"
 import {TerrainGenerator} from "./terrain-generator.js"
 import {loadShader} from "../../toolbox/babylon/load-shader.js"
 
 export async function makeGround({
-		scene,
+		theater: {scene},
 		mapSize,
 		resolution,
 		normalStrength,
@@ -19,7 +19,7 @@ export async function makeGround({
 		cliffSlopeFactor,
 		terrainGenerator,
 	}: {
-		scene: Scene
+		theater: Theater
 		mapSize: number
 		resolution: number
 		normalStrength: number
