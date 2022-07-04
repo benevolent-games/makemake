@@ -16,8 +16,13 @@ void async function() {
 	const scene = new Scene(engine)
 	scene.clearColor = new Color4(0, 0, 0, 0)
 	scene.ambientColor = new Color3(0.005, 0.005, 0.005)
+	const renderLoop = new Set<() => void>()
 
-	await makeRtsWorld({scene, canvas})
+	await makeRtsWorld({scene, canvas, renderLoop})
 
-	engine.runRenderLoop(() => scene.render())
+	engine.runRenderLoop(() => {
+		for (const routine of renderLoop)
+			routine()
+		scene.render()
+	})
 }()

@@ -1,17 +1,14 @@
 
 export type Random = () => number
 
-export function randomSeed() {
-	return 999_999 + Math.floor(Math.random() * 1_000_000_000)
-}
-
-export interface RandomTools {
+export interface Randomly {
 	random(): number
 	randomSelect<T>(stuff: T[]): T
 	randomBoolean(percentChanceOfTrue: number): boolean
 }
 
-export function pseudoRandomTools(seed: number): RandomTools {
+export function makeRandomToolkit(seed: number = Math.random()): Randomly {
+	seed = 999_999 + Math.floor(seed * 999_999)
 
 	function random() {
 		seed = Math.imul(48271, seed) | 0 % 2147483647
