@@ -31,6 +31,7 @@ export function makeTheater() {
 			const {width, height} = canvas.getBoundingClientRect()
 			canvas.width = width
 			canvas.height = height
+			engine.resize()
 		},
 		start() {
 			engine.runRenderLoop(() => {

@@ -22,7 +22,10 @@ export function makeCursor({
 
 	const canvas = document.createElement("canvas")
 	canvas.className = "cursor"
-	const context = canvas.getContext("2d")!
+	const context = canvas.getContext("2d", {
+		desynchronized: true,
+		alpha: true,
+	})!
 
 	let canvasWidth = 100
 	let canvasHeight = 100

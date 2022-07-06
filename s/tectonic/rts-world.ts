@@ -30,11 +30,13 @@ export function makeRtsWorld() {
 	container.append(theater.canvas, cursor.canvas)
 	container.onclick = cursor.lock
 	container.onmousemove = cursor.onmousemove
-	container.onresize = () => {
+	function resizeAll() {
 		cursor.onresize()
 		theater.onresize()
 	}
-	setTimeout(container.onresize, 0)
+	container.onresize = resizeAll
+	document.addEventListener("fullscreenchange", resizeAll)
+	setTimeout(resizeAll, 0)
 
 	container.onkeydown = event => {
 		if (event.key === "F" && event.ctrlKey) {

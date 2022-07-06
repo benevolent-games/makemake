@@ -94,7 +94,6 @@ header p {
 	aspect-ratio: 16 / 9;
 	background: #100e09;
 	border-radius: 0.3em;
-	overflow: clip;
 }
 
 .container :is(canvas) {
