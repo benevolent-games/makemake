@@ -11,17 +11,18 @@ export function setupTheater({container}: {
 	}) {
 
 	const canvas = document.createElement("canvas")
+	const cursor = makeCursorRig(container)
 	container.appendChild(canvas)
+	container.appendChild(cursor.display)
 	function resizeCanvas() {
 		const {width, height} = canvas.getBoundingClientRect()
 		canvas.width = width
 		canvas.height = height
+		cursor.display.width = width
+		cursor.display.height = height
 	}
 	window.addEventListener("resize", resizeCanvas)
 	resizeCanvas()
-
-	const cursor = makeCursorRig(canvas)
-	container.appendChild(cursor.display)
 
 	const engine = new Engine(canvas, true)
 	;(<any>window).engine = engine

@@ -1,50 +1,56 @@
+
 import {cap} from "../../../toolbox/numpty.js"
+import {graphics} from "./graphics/cursor-graphics.js"
 
 export function makeCursorRig(container: HTMLElement) {
-	const display = document.createElement("div")
+
+	const display = document.createElement("canvas")
 	display.className = "cursor-display"
 
 	const margin = 3
+	let left = margin
+	let top = margin
 
-	const cursor = document.createElement("div")
-	cursor.className = "cursor"
-	cursor.style.position = "absolute"
-	cursor.style.top = "0"
-	cursor.style.left = "0"
-	cursor.style.background = "white"
-	cursor.style.width = "10px"
-	cursor.style.height = "10px"
-	cursor.style.overflow = "hidden"
-	display.appendChild(cursor)
+	const graphic = graphics.beta()
 
-	const cursorPosition = {
-		top: 0,
-		left: 0,
+	const context = display.getContext("2d")!
+	function canvasDraw() {
+		context.clearRect(0, 0, display.width, display.height)
+		context.drawImage(
+			graphic.image,
+			left + graphic.offset.left,
+			top + graphic.offset.top,
+			32,
+			32,
+		)
 	}
+	function renderCanvas() {
+		requestAnimationFrame(canvasDraw)
+	}
+	canvasDraw()
 
 	function isPointerLocked() {
 		return document.pointerLockElement === container
 	}
 
-	function renderCursorPosition() {
+	function updateCursor() {
 		const {width, height} = container.getBoundingClientRect()
-		cursorPosition.top = cap(cursorPosition.top, 0 + margin, height - margin)
-		cursorPosition.left = cap(cursorPosition.left, 0 + margin, width - margin)
-		cursor.style.top = `${cursorPosition.top}px`
-		cursor.style.left = `${cursorPosition.left}px`
+		top = cap(top, 0 + margin, height - margin)
+		left = cap(left, 0 + margin, width - margin)
+		renderCanvas()
 	}
 
 	container.onmousemove = event => {
 		if (isPointerLocked()) {
 			const {movementX, movementY} = event
-			cursorPosition.top += movementY
-			cursorPosition.left += movementX
+			top += movementY
+			left += movementX
 		}
 		else {
-			cursorPosition.top = event.offsetY
-			cursorPosition.left = event.offsetX
+			top = event.offsetY
+			left = event.offsetX
 		}
-		renderCursorPosition()
+		updateCursor()
 	}
 
 	container.onclick = event => {
