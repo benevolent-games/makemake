@@ -18,6 +18,7 @@ export async function sprinkleProps({
 		shadowControl,
 		cliffSlopeFactor,
 		terrainGenerator,
+		forestAssetsUrl,
 	}: {
 		theater: Theater
 		mapSize: number
@@ -26,12 +27,10 @@ export async function sprinkleProps({
 		cliffSlopeFactor: number
 		terrainGenerator: TerrainGenerator
 		treeDetails: TreeDetails
+		forestAssetsUrl: string
 	}) {
 
-	const assets = await loadGlb(
-		scene,
-		"https://dl.dropbox.com/s/9p0k1aacrcy8c9q/forestAssetPack2.glb",
-	)
+	const assets = await loadGlb(scene, forestAssetsUrl)
 
 	// hide all base meshes
 	for (const mesh of assets.meshes)
