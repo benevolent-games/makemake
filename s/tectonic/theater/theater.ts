@@ -24,6 +24,15 @@ export function setupTheater({container}: {
 	window.addEventListener("resize", resizeCanvas)
 	resizeCanvas()
 
+	container.addEventListener("keypress", event => {
+		if (event.key === "F") {
+			if (document.fullscreenElement === container)
+				document.exitFullscreen()
+			else
+				container.requestFullscreen()
+		}
+	})
+
 	const engine = new Engine(canvas, true)
 	;(<any>window).engine = engine
 

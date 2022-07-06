@@ -112,3 +112,18 @@ header p {
 	z-index: 1;
 	pointer-events: none;
 }
+
+.theater:not([data-pointer-locked])::after {
+	content: "click to lock in";
+	display: block;
+	position: absolute;
+	pointer-events: none;
+	inset: 0;
+	margin: auto;
+	width: max-content;
+	height: max-content;
+	padding: 2em;
+	border-radius: 0.4em;
+	color: white;
+	background: #0008;
+}

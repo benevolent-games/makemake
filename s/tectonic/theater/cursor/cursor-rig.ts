@@ -53,7 +53,14 @@ export function makeCursorRig(container: HTMLElement) {
 		updateCursor()
 	}
 
-	container.onclick = event => {
+	document.addEventListener("pointerlockchange", () => {
+		if (isPointerLocked())
+			container.setAttribute("data-pointer-locked", "")
+		else
+			container.removeAttribute("data-pointer-locked")
+	})
+
+	container.onclick = () => {
 		if (!isPointerLocked())
 			container.requestPointerLock()
 	}
