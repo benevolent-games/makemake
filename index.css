@@ -81,6 +81,7 @@ h1 em {
 
 header > div {
 	padding: 0 max(2vw, 2em);
+	font-size: 0.8em;
 }
 
 header p {
