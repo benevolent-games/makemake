@@ -47,6 +47,8 @@ export function makeRtsWorld() {
 
 	return {
 		container,
+		theater,
+		cursor,
 		async initialize() {
 			const mapSize = 1000
 			const cliffSlopeFactor = 0.4
@@ -105,7 +107,7 @@ export function makeRtsWorld() {
 				},
 			})
 
-			theater.startRendering()
+			theater.start()
 		},
 	}
 }

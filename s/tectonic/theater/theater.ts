@@ -10,8 +10,13 @@ export function makeTheater() {
 	canvas.className = "theater"
 
 	const engine = new Engine(canvas, true)
-	const scene = new Scene(engine)
-	scene.clearColor = new Color4(0, 0, 0, 0)
+
+	const scene = new Scene(engine, {
+		useGeometryUniqueIdsMap: true,
+		useMaterialMeshMap: true,
+	})
+
+	scene.clearColor = new Color4(62 / 255, 129 / 255, 186 / 255, 1)
 	scene.ambientColor = new Color3(0.005, 0.005, 0.005)
 	;(<any>window).engine = engine
 
@@ -27,14 +32,14 @@ export function makeTheater() {
 			canvas.width = width
 			canvas.height = height
 		},
-		startRendering() {
+		start() {
 			engine.runRenderLoop(() => {
 				for (const routine of renderLoop)
 					routine()
 				scene.render()
 			})
 		},
-		stopRendering() {
+		stop() {
 			engine.stopRenderLoop()
 		},
 	}
