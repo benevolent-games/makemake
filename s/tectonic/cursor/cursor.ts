@@ -3,6 +3,8 @@ import {cap} from "../../toolbox/numpty.js"
 import {CursorIcon} from "./cursor-types.js"
 import {Settings} from "../settings/settings.js"
 
+export type Cursor = ReturnType<typeof makeCursor>
+
 export function makeCursor({
 		settings,
 		insetBoundary,
@@ -85,9 +87,14 @@ export function makeCursor({
 	window.addEventListener("resize", onresize)
 	onresize()
 
+	const listeners = {
+		mousemove: new Set<(event: MouseEvent) => void>()
+	}
+
 	return {
 		canvas,
 		isLocked,
+		listeners,
 		lock() {
 			if (!settings.useOperatingSystemCursor && !isLocked())
 				canvas.requestPointerLock()
@@ -103,6 +110,16 @@ export function makeCursor({
 				positionLeft = event.offsetX
 			}
 			updateCursor()
+			for (const listener of listeners.mousemove)
+				listener(event)
+		},
+		getCoordinates() {
+			return {
+				canvasWidth,
+				canvasHeight,
+				x: positionLeft,
+				y: canvasHeight - positionTop,
+			}
 		},
 	}
 }

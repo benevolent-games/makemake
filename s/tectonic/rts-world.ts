@@ -14,13 +14,16 @@ import {makeAerialCamera} from "./aerial/aerial-camera.js"
 import {sprinkleProps} from "./landscape/sprinkle-props.js"
 import {cursorIconBeta} from "./cursor/icons/cursor-icon-beta.js"
 import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
+import {makeInputTracker} from "./inputs/input-tracker.js"
 
 export function makeRtsWorld() {
 	const container = document.createElement("div")
 	container.className = "container"
+	container.tabIndex = 0
 
 	const theater = makeTheater()
 	const settings = makeSettings()
+	const inputs = makeInputTracker(container)
 
 	const cursor = makeCursor({
 		settings: settings.readable,
@@ -61,7 +64,7 @@ export function makeRtsWorld() {
 			const cliffSlopeFactor = 0.4
 			const randomly = makeRandomToolkit()
 
-			makeAerialCamera({theater})
+			makeAerialCamera({theater, cursor, inputs})
 
 			const terrainGenerator = makeTerrainGenerator({
 				randomly,
