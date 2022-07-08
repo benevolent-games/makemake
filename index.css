@@ -9,7 +9,7 @@
 
 html {
 	font-family: "Josefin Sans", sans-serif;
-	font-size: 21px;
+	font-size: 16px;
 	height: 100%;
 	background: #363228;
 	background: fixed linear-gradient(150deg, #524c3c, #12100b);
@@ -81,7 +81,6 @@ h1 em {
 
 header > div {
 	padding: 0 max(2vw, 2em);
-	font-size: 0.8em;
 }
 
 header p {
@@ -94,7 +93,6 @@ header p {
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	background: #100e09;
-	border-radius: 0.3em;
 }
 
 .container :is(canvas) {

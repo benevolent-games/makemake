@@ -1,8 +1,11 @@
 
 import {cap} from "../../toolbox/numpty.js"
 import {CursorIcon} from "./cursor-types.js"
+import {Settings} from "../settings/settings.js"
 
 export function makeCursor({
+		settings,
+		insetBoundary,
 		icon: {
 			image: iconImage,
 			offset: {
@@ -10,11 +13,11 @@ export function makeCursor({
 				left: iconOffsetLeft,
 			},
 		},
-		insetBoundary,
 		onLocked,
 		onUnlocked,
 	}: {
 		icon: CursorIcon
+		settings: Settings
 		insetBoundary: number
 		onLocked(): void
 		onUnlocked(): void
@@ -22,6 +25,7 @@ export function makeCursor({
 
 	const canvas = document.createElement("canvas")
 	canvas.className = "cursor"
+
 	const context = canvas.getContext("2d", {
 		desynchronized: true,
 		alpha: true,
@@ -37,7 +41,7 @@ export function makeCursor({
 		const x = positionLeft
 		const y = positionTop
 		context.clearRect(0, 0, canvasWidth, canvasHeight)
-		if (isLocked()) {
+		if (!settings.useOperatingSystemCursor && isLocked()) {
 			context.beginPath()
 			context.arc(x, y, 7, 0, 2 * Math.PI, false)
 			context.arc(x, y, 4, 0, 2 * Math.PI, false)
@@ -85,7 +89,7 @@ export function makeCursor({
 		canvas,
 		isLocked,
 		lock() {
-			if (!isLocked())
+			if (!settings.useOperatingSystemCursor && !isLocked())
 				canvas.requestPointerLock()
 		},
 		onresize,

@@ -7,6 +7,7 @@ import {easing} from "../toolbox/easing.js"
 import {makeCursor} from "./cursor/cursor.js"
 import {makeGround} from "./landscape/ground.js"
 import {makeTheater} from "./theater/theater.js"
+import {makeSettings} from "./settings/settings.js"
 import {setupLighting} from "./landscape/lighting.js"
 import {makeRandomToolkit} from "../toolbox/randomly.js"
 import {makeAerialCamera} from "./aerial/aerial-camera.js"
@@ -19,8 +20,10 @@ export function makeRtsWorld() {
 	container.className = "container"
 
 	const theater = makeTheater()
+	const settings = makeSettings()
 
 	const cursor = makeCursor({
+		settings: settings.readable,
 		insetBoundary: 5,
 		icon: cursorIconBeta(),
 		onLocked: () => container.setAttribute("data-locked", ""),
@@ -28,6 +31,7 @@ export function makeRtsWorld() {
 	})
 
 	container.append(theater.canvas, cursor.canvas)
+
 	container.onclick = cursor.lock
 	container.onmousemove = cursor.onmousemove
 	function resizeAll() {
@@ -49,6 +53,7 @@ export function makeRtsWorld() {
 
 	return {
 		container,
+		settings,
 		theater,
 		cursor,
 		async initialize() {
