@@ -60,11 +60,26 @@ export function makeRtsWorld() {
 		theater,
 		cursor,
 		async initialize() {
-			const mapSize = 1000
+			const mapSize = 3000
 			const cliffSlopeFactor = 0.4
 			const randomly = makeRandomToolkit()
+			let sampleHeight = (x: number, y: number) => 0
 
-			makeAerialCamera({theater, cursor, inputs})
+			makeAerialCamera({
+				theater,
+				cursor,
+				inputs,
+				mapSize,
+				radius: {
+					initial: 100,
+					min: 25,
+					max: 500,
+				},
+				sensitivity: {
+					wheel: 0.5,
+				},
+				sampleHeight: (x, y) => sampleHeight(x, y),
+			})
 
 			const terrainGenerator = makeTerrainGenerator({
 				randomly,
@@ -77,11 +92,12 @@ export function makeRtsWorld() {
 					{scale: 11, amplitude: 0.8, ease: easing.linear},
 				],
 			})
+			sampleHeight = terrainGenerator.sampleHeight
 
 			await makeGround({
 				theater,
 				mapSize,
-				resolution: 256,
+				resolution: 512,
 				terrainGenerator,
 				cliffSlopeFactor,
 				normalStrength: 1,

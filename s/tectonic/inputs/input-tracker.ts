@@ -13,6 +13,7 @@ export function makeInputTracker(container: HTMLElement) {
 		keyup: new Set<(event: KeyboardEvent) => void>(),
 		mousedown: new Set<(event: MouseEvent) => void>(),
 		mouseup: new Set<(event: MouseEvent) => void>(),
+		wheel: new Set<(event: WheelEvent) => void>(),
 	}
 
 	container.addEventListener("keydown", event => {
@@ -39,12 +40,18 @@ export function makeInputTracker(container: HTMLElement) {
 			listener(event)
 	})
 
+	container.addEventListener("wheel", event => {
+		for (const listener of listeners.wheel)
+			listener(event)
+	})
+
 	container.oncontextmenu = event => {
 		event.preventDefault()
 		return false
 	}
 
 	return {
+		listeners,
 		get(name: string) {
 			return values[name]
 				?? {pressed: false, time: Date.now()}

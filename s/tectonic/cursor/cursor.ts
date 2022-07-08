@@ -88,7 +88,7 @@ export function makeCursor({
 	onresize()
 
 	const listeners = {
-		mousemove: new Set<(event: MouseEvent) => void>()
+		mousemove: new Set<(event: MouseEvent) => void>(),
 	}
 
 	return {
