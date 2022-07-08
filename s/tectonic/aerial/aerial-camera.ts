@@ -77,13 +77,16 @@ export function makeAerialCamera({
 	theater.renderLoop.add(smoothUpdateForCameraHeight)
 	theater.renderLoop.add(smoothUpdateForCameraZoom)
 
+	function isPressingPanButton() {
+		return inputs.get("mouse_primary").pressed
+			|| inputs.get("mouse_secondary").pressed
+			|| inputs.get("mouse_tertiary").pressed
+	}
+
 	const boundaryA = -(mapSize / 2)
 	const boundaryB = mapSize / 2
 	cursor.listeners.mousemove.add(({movementX, movementY}) => {
-		const m1 = inputs.get("mouse_primary").pressed
-		const m2 = inputs.get("mouse_secondary").pressed
-		const m3 = inputs.get("mouse_tertiary").pressed
-		if (m1 || m2 || m3) {
+		if (isPressingPanButton()) {
 			camera.target.x = cap(
 				camera.target.x + (movementX * (camera.radius / 200)),
 				boundaryA,
@@ -94,6 +97,42 @@ export function makeAerialCamera({
 				boundaryA,
 				boundaryB,
 			)
+			updateTargetHeight()
+		}
+	})
+
+	theater.renderLoop.add(() => {
+		if (!isPressingPanButton()) {
+			const {canvasWidth, canvasHeight, x, y} = cursor.getCoordinates()
+			const px = x / canvasWidth
+			const py = y / canvasHeight
+			let movementX = 0
+			let movementY = 0
+
+			if (py > 0.95)
+				movementY += 1
+			else if (py < 0.05)
+				movementY -= 1
+
+			if (px > 0.95)
+				movementX += 1
+			else if (px < 0.05)
+				movementX -= 1
+
+			if (movementY !== 0)
+				camera.target.z = cap(
+					camera.target.z - (20 * movementY * (camera.radius / 200)),
+					boundaryA,
+					boundaryB,
+				)
+
+			if (movementX !== 0)
+				camera.target.x = cap(
+					camera.target.x - (20 * movementX * (camera.radius / 200)),
+					boundaryA,
+					boundaryB,
+				)
+
 			updateTargetHeight()
 		}
 	})
