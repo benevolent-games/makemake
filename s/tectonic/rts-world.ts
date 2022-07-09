@@ -9,50 +9,36 @@ import {makeGround} from "./landscape/ground.js"
 import {makeTheater} from "./theater/theater.js"
 import {makeSettings} from "./settings/settings.js"
 import {setupLighting} from "./landscape/lighting.js"
+import {makeWorldContainer} from "./world/container.js"
 import {makeRandomToolkit} from "../toolbox/randomly.js"
 import {makeAerialCamera} from "./aerial/aerial-camera.js"
+import {makeInputTracker} from "./inputs/input-tracker.js"
 import {sprinkleProps} from "./landscape/sprinkle-props.js"
 import {cursorIconBeta} from "./cursor/icons/cursor-icon-beta.js"
+import {setupFullscreenHandler} from "./world/setup-fullscreen.js"
 import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
-import {makeInputTracker} from "./inputs/input-tracker.js"
 
 export function makeRtsWorld() {
-	const container = document.createElement("div")
-	container.className = "container"
-	container.tabIndex = 0
-
+	const {container, wirePartsUpToDom} = makeWorldContainer()
 	const theater = makeTheater()
 	const settings = makeSettings()
 	const inputs = makeInputTracker(container)
-
 	const cursor = makeCursor({
-		settings: settings.readable,
 		insetBoundary: 5,
 		icon: cursorIconBeta(),
+		settings: settings.readable,
 		onLocked: () => container.setAttribute("data-locked", ""),
 		onUnlocked: () => container.removeAttribute("data-locked"),
 	})
 
-	container.append(theater.canvas, cursor.canvas)
+	wirePartsUpToDom({
+		theater,
+		cursor,
+	})
 
-	container.onclick = cursor.lock
-	container.onmousemove = cursor.onmousemove
-	function resizeAll() {
-		cursor.onresize()
-		theater.onresize()
-	}
-	container.onresize = resizeAll
-	document.addEventListener("fullscreenchange", resizeAll)
-	setTimeout(resizeAll, 0)
-
-	container.onkeydown = event => {
-		if (event.key === "F" && event.ctrlKey) {
-			if (document.fullscreenElement === container)
-				document.exitFullscreen()
-			else
-				container.requestFullscreen()
-		}
-	}
+	inputs.listeners.keydown.add(
+		setupFullscreenHandler(container)
+	)
 
 	return {
 		container,

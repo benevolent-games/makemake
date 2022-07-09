@@ -84,7 +84,6 @@ export function makeCursor({
 		updateCursor()
 	}
 
-	window.addEventListener("resize", onresize)
 	onresize()
 
 	const listeners = {
