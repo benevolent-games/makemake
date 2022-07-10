@@ -2,6 +2,7 @@
 import "@babylonjs/core/Materials/standardMaterial.js"
 import "@babylonjs/loaders/glTF/2.0/index.js"
 import "@babylonjs/core/Lights/Shadows/index.js"
+import "@babylonjs/core/Culling/ray.js"
 
 import {easing} from "../toolbox/easing.js"
 import {makeCursor} from "./cursor/cursor.js"
@@ -12,11 +13,14 @@ import {setupLighting} from "./landscape/lighting.js"
 import {makeWorldContainer} from "./world/container.js"
 import {makeRandomToolkit} from "../toolbox/randomly.js"
 import {makeAerialCamera} from "./aerial/aerial-camera.js"
-import {makeInputTracker} from "./inputs/input-tracker.js"
+import {makeInputTracker, nameForMouseButton} from "./inputs/input-tracker.js"
 import {sprinkleProps} from "./landscape/sprinkle-props.js"
 import {cursorIconBeta} from "./cursor/icons/cursor-icon-beta.js"
 import {setupFullscreenHandler} from "./world/setup-fullscreen.js"
 import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
+import {makeHand} from "./hand/hand.js"
+import {spawnBox} from "./hand/spawn-box.js"
+import {v3} from "../toolbox/v3.js"
 
 export function makeRtsWorld() {
 	const {container, wirePartsUpToDom} = makeWorldContainer()
@@ -80,7 +84,7 @@ export function makeRtsWorld() {
 			})
 			sampleHeight = terrainGenerator.sampleHeight
 
-			await makeGround({
+			const ground = await makeGround({
 				theater,
 				mapSize,
 				resolution: 512,
@@ -88,6 +92,21 @@ export function makeRtsWorld() {
 				cliffSlopeFactor,
 				normalStrength: 1,
 				groundShaderUrl: "https://dl.dropbox.com/s/may8ifijik7mwms/terrainShader2.json",
+			})
+
+			const hand = makeHand({theater, cursor, ground})
+			inputs.listeners.mousedown.add(event => {
+				const name = nameForMouseButton(event.button)
+				if (name === "mouse_primary" || name === "mouse_secondary") {
+					const position = hand.pickPointOnGround()
+					if (position)
+						spawnBox({
+							scene: theater.scene,
+							size: 5,
+							position,
+							color: [1, 1, 1],
+						})
+				}
 			})
 
 			const {shadowControl} = setupLighting({
@@ -107,7 +126,7 @@ export function makeRtsWorld() {
 				shadowControl,
 				cliffSlopeFactor,
 				terrainGenerator,
-				forestAssetsUrl: "https://dl.dropbox.com/s/9p0k1aacrcy8c9q/forestAssetPack2.glb",
+				forestAssetsUrl: "https://dl.dropbox.com/s/zolibuhu0vqyhua/forestAssetPack3.glb",
 				treeDetails: {
 					numberOfTrees: 256,
 					spaceBetweenTrees: 7,

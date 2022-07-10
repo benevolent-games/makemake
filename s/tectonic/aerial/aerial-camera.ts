@@ -78,9 +78,7 @@ export function makeAerialCamera({
 	theater.renderLoop.add(smoothUpdateForCameraZoom)
 
 	function isPressingPanButton() {
-		return inputs.get("mouse_primary").pressed
-			|| inputs.get("mouse_secondary").pressed
-			|| inputs.get("mouse_tertiary").pressed
+		return inputs.get("mouse_tertiary").pressed
 	}
 
 	const boundaryA = -(mapSize / 2)
@@ -110,9 +108,9 @@ export function makeAerialCamera({
 			let movementY = 0
 
 			if (py > 0.95)
-				movementY += 1
-			else if (py < 0.05)
 				movementY -= 1
+			else if (py < 0.05)
+				movementY += 1
 
 			if (px > 0.95)
 				movementX += 1

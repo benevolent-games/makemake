@@ -59,7 +59,7 @@ export function makeInputTracker(container: HTMLElement) {
 	}
 }
 
-function nameForMouseButton(button: number) {
+export function nameForMouseButton(button: number) {
 	switch (button) {
 		case 0: return "mouse_primary"
 		case 1: return "mouse_tertiary"

@@ -117,7 +117,7 @@ export function makeCursor({
 				canvasWidth,
 				canvasHeight,
 				x: positionLeft,
-				y: canvasHeight - positionTop,
+				y: positionTop,
 			}
 		},
 	}
