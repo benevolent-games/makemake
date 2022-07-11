@@ -37,9 +37,10 @@ export async function loadShader({url, scene, label}: {
 			const blocks = material.getInputBlocks()
 			for (const [name, value] of Object.entries(inputs)) {
 				const block = <InputBlock>blocks.find(b => b.name === name)
-				if (!block)
+				if (block)
+					block.value = value
+				else
 					console.error(`cannot find input block "${name}" for shader (node material) "${material.name}"`)
-				block.value = value
 			}
 			return shader
 		},

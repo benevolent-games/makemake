@@ -50,8 +50,10 @@ export function sprinkleTrees({
 
 	while (treePositions.length < numberOfTrees) {
 		attempts += 1
-		if (attempts > maxTreePlantingAttempts)
-			throw new Error("failed to plant trees, too many failed attempts")
+		if (attempts > maxTreePlantingAttempts) {
+			console.error("failed to plant trees, too many failed attempts")
+			break
+		}
 
 		const x = (randomly.random() * mapSize) - (mapSize / 2)
 		const z = (randomly.random() * mapSize) - (mapSize / 2)

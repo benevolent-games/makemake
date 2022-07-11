@@ -52,6 +52,10 @@ export function makeAerialCamera({
 		)
 	}
 
+	function sharpUpdateForCameraHeight() {
+		camera.target.y = targetHeight
+	}
+
 	function smoothUpdateForCameraHeight() {
 		const currentHeight = camera.target.y
 		const difference = targetHeight - currentHeight
@@ -75,6 +79,7 @@ export function makeAerialCamera({
 
 	updateTargetHeight()
 	theater.renderLoop.add(smoothUpdateForCameraHeight)
+	// theater.renderLoop.add(sharpUpdateForCameraHeight)
 	theater.renderLoop.add(smoothUpdateForCameraZoom)
 
 	function isPressingPanButton() {

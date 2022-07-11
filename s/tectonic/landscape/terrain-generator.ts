@@ -42,12 +42,12 @@ export function makeTerrainGenerator({
 		const offset = 0.5
 		const point_base = <V3>[x, sampleHeight(x, z), z]
 		const point_north = <V3>[x, sampleHeight(x, z + offset), z + offset]
-		const point_east = <V3>[x - offset, sampleHeight(x - offset, z), z]
+		const point_west = <V3>[x - offset, sampleHeight(x - offset, z), z]
 		
 		const vector_north = v3.normalize(v3.subtract(point_north, point_base))
-		const vector_east = v3.normalize(v3.subtract(point_east, point_base))
+		const vector_west = v3.normalize(v3.subtract(point_west, point_base))
 
-		const surface_normal = v3.normalize(v3.cross(vector_east, vector_north))
+		const surface_normal = v3.normalize(v3.cross(vector_west, vector_north))
 		return surface_normal
 	}
 

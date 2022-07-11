@@ -8,19 +8,28 @@ import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 import {v3, V3} from "../../toolbox/v3.js"
 
 export function spawnBox({
-		scene, size, position, color,
+		scene, size, position, color, unlit,
 	}: {
 		scene: Scene
 		size: number
 		position: V3
 		color: V3
+		unlit: boolean
 	}) {
 
 	const box = MeshBuilder.CreateBox("box", {size}, scene)
 
 	const material = new StandardMaterial("boxmaterial")
-	material.diffuseColor = new Color3(1, 0, 0)
-	material.ambientColor = new Color3(1, 1, 1)
+	if (unlit) {
+		material.disableLighting = unlit
+		material.emissiveColor = new Color3(...color)
+	}
+	else {
+		material.diffuseColor = new Color3(...color)
+		material.ambientColor = new Color3(1, 1, 1)
+	}
+
+	material.zOffset = -10
 
 	// const material = new PBRMaterial("boxmaterial")
 	// material.albedoColor = new Color3(1, 0, 0)

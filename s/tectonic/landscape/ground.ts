@@ -9,6 +9,7 @@ import {V3} from "../../toolbox/v3.js"
 import {Theater} from "../theater/theater.js"
 import {TerrainGenerator} from "./terrain-generator.js"
 import {loadShader} from "../../toolbox/babylon/load-shader.js"
+import {Vector2} from "@babylonjs/core/Maths/math.js"
 
 export async function makeGround({
 		theater: {scene},
@@ -43,7 +44,14 @@ export async function makeGround({
 		label: "groundshader",
 	})
 
-	shader.assignInputs({cliffSlopeFactor, normalStrength})
+	shader.assignInputs({
+		// cliffSlopeFactor,
+		traversable: cliffSlopeFactor,
+		normalStrength,
+		textureFrequency: 6,
+		grassiness: 2,
+		noiseFrequency: 40,
+	})
 
 	ground.material = shader.material
 	return ground
