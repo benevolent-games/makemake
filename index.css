@@ -1,0 +1,115 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,400;0,700;1,100;1,400;1,700&display=swap');
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-family: "Josefin Sans", sans-serif;
+	font-size: 16px;
+	height: 100%;
+	background: #363228;
+	background: fixed linear-gradient(150deg, #524c3c, #12100b);
+	color: #c48459;
+	text-shadow: 1px 2px #0002;
+}
+
+:not(:defined) {
+	display: none;
+}
+
+body {
+	padding: 1em;
+	margin: auto;
+	max-width: 45em;
+}
+
+body > * + * {
+	margin-top: 0.6em;
+}
+
+a {
+	color: #ffc05c;
+	font-weight: bold;
+}
+
+a:is(:hover, :focus) {
+	color: #ffdba2;
+}
+
+a:active {
+	color: #ffefd6;
+}
+
+header {
+	text-align: left;
+}
+
+h1 {
+	font-size: clamp(1.5rem, 15vw - 1.5rem, 4rem);
+	text-shadow: 4px 6px 1px #0003;
+}
+
+h1 > * {
+	display: block;
+}
+
+h1 strong span {
+	position: relative;
+	color: transparent;
+}
+
+h1 strong span::after {
+	content: "makemake";
+	display: block;
+	position: absolute;
+	inset: 0;
+	background-image: linear-gradient(150deg, #ffbc2f, #ff572f);
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+	text-shadow: none;
+}
+
+h1 em {
+	opacity: 0.5;
+	font-size: 0.5em;
+}
+
+header > div {
+	padding: 0 max(2vw, 2em);
+}
+
+header p {
+	margin: 0.1em auto;
+}
+
+.container {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: #100e09;
+}
+
+.container :is(canvas) {
+	display: block;
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.container canvas:focus {
+	outline: none;
+}
+
+.container .cursor {
+	position: relative;
+	display: block;
+	z-index: 1;
+}

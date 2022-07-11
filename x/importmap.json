@@ -1,0 +1,27 @@
+{
+	"imports": {
+		"@babylonjs/core/": "/node_modules/@babylonjs/core/",
+		"@babylonjs/core": "/node_modules/@babylonjs/core/index.js",
+		"@babylonjs/loaders/": "/node_modules/@babylonjs/loaders/",
+		"@babylonjs/loaders": "/node_modules/@babylonjs/loaders/index.js",
+		"@chasemoskal/magical/": "/node_modules/@chasemoskal/magical/",
+		"@chasemoskal/magical": "/node_modules/@chasemoskal/magical/x/magical.js",
+		"@lit/reactive-element/": "/node_modules/@lit/reactive-element/",
+		"@lit/reactive-element": "/node_modules/@lit/reactive-element/reactive-element.js",
+		"@types/trusted-types/": "/node_modules/@types/trusted-types/",
+		"babylonjs-gltf2interface/": "/node_modules/babylonjs-gltf2interface/",
+		"es-module-shims/": "/node_modules/es-module-shims/",
+		"es-module-shims": "/node_modules/es-module-shims/dist/es-module-shims.js",
+		"lit/": "/node_modules/lit/",
+		"lit": "/node_modules/lit/index.js",
+		"lit-element/": "/node_modules/lit-element/",
+		"lit-element": "/node_modules/lit-element/index.js",
+		"lit-html/": "/node_modules/lit-html/",
+		"lit-html": "/node_modules/lit-html/lit-html.js",
+		"simplex-noise/": "/node_modules/simplex-noise/",
+		"simplex-noise": "/node_modules/simplex-noise/dist/esm/simplex-noise.js",
+		"tslib/": "/node_modules/tslib/",
+		"tslib": "/node_modules/tslib/tslib.es6.js"
+	},
+	"scopes": {}
+}
