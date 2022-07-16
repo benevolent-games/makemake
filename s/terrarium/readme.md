@@ -1,5 +1,5 @@
 
-# ⛰️ benevolent's terrarium
+# 🏞️ benevolent **terrarium**
 
 *an outdoor world generator for babylonjs web games*
 
@@ -11,13 +11,14 @@
 🌳 trees, grasses, and shrubbery  
 🌞 sky with day/night cycle, and weather  
 
-🎲 randomly generate outdoor worlds  
+🎲 random, seedable, and repeatable  
 🌱 seedable and repeatable  
 💾 loads fast, less than 2 megabytes  
-🧭 comes with navmesh for pathfinding  
+🧭 navmesh for [pilot](../pilot/) pathfinding  
 
-💖 free and open source just for you  
-👼 brought to you by [benevolent.games](https://benevolent.games/)  
+🗿 part of [makemake](https://github.com/benevolent-games/makemake)  
+👼 by [benevolent.games](https://benevolent.games/)  
+💖 free and open source, just for you  
 
 ## easy install into your babylonjs web game
 

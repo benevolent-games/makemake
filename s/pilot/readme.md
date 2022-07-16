@@ -1,21 +1,21 @@
 
-# 👨‍✈️ benevolent pilot
+# 👨‍✈️ benevolent **pilot**
 
-*pathfinding system for web games*
+*smart pathfinding system for web games*
 
 🕹️ [live demo](https://makemake.benevolent.games/pilot/)  
 
 🗺️ find shortest paths between points  
 🧗 negotiate complex terrain and obstacles  
 🐢 consider speed penalties like steep slopes, mud, etc  
-⛰️ use a navmesh from [terrarium](../terrarium), or make your own  
+🏞️ use a navmesh from [terrarium](../terrarium), or make your own  
 ✏️ "living paths" update dynamically as obstacles change  
 🪜 even works in fully 3d environments  
 🧵 multi-threaded with web-workers  
 
-👼 a [benevolent.games](https://benevolent.games/) project  
-🗿 part of the [makemake](https://github.com/benevolent-games/makemake) codebase  
-💖 free and open source, just for you
+🗿 part of [makemake](https://github.com/benevolent-games/makemake)  
+👼 by [benevolent.games](https://benevolent.games/)  
+💖 free and open source, just for you  
 
 <br/>
 
