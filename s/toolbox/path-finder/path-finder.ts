@@ -1,15 +1,9 @@
-let cols = 20
-let rows = 20
-const grid = new Array(cols)
-let openSet: Spot[] = []
-let closedSet: Spot[] = []
-let start: Spot
-let end: Spot
-let path: Spot[] = []
 
-function removeFromArray(arr: Spot[], elt: Spot) {
-	return arr.filter((el) => el !== elt)
-}
+import {V2} from "../v2.js"
+
+// const cols = 5
+// const rows = 5
+// const grid = new Array(cols)
 
 function heuristic(a: number[], b: number[]) {
 	const euclideanDistance = Math.hypot(...a.map((k, i) => b[i] - a[i]))
@@ -26,103 +20,150 @@ function heuristic(a: number[], b: number[]) {
 // 	previous: undefined | CellSpot
 // }
 
-class Spot {
-	i: number = 0
-	j: number = 0
-	f: number = 0
-	g: number = 0
-	h: number = 0
-	neighbors: Spot[] = []
-	previous: undefined | Spot
+// for (const [i, col] of grid.entries()) {
+// 	grid[i] = new Array(rows)
+// }
 
-	constructor(i: number, j: number) {
-		this.i = i
-		this.j = j
-	}
+// for (const [i, col] of grid.entries()) {
+// 	for (const [j, row] of col.entries()) {
+// 		grid[i][j] = new Spot(i, j)
+// 	}
+// }
 
-	addNeighbors = (grid: any[]) => {
-		const { i, j, neighbors } = this
-		if (i < cols - 1) neighbors.push(grid[i + 1][j])
-		if (i > 0) neighbors.push(grid[i - 1][j])
-		if (j < rows - 1) neighbors.push(grid[i][j + 1])
-		if (j > 0) neighbors.push(grid[i][j - 1])
-		if (i > 0 && j > 0) neighbors.push(grid[i - 1][j - 1])
-		if (i < cols - 1 && j > 0) neighbors.push(grid[i + 1][j - 1])
-		if (i > 0 && j < rows - 1) neighbors.push(grid[i - 1][j + 1])
-		if (i < cols - 1 && j < rows - 1) neighbors.push(grid[i + 1][j + 1])
-	}
-}
+// for (const [i, col] of grid.entries()) {
+// 	for (const [j, row] of col.entries()) {
+// 		grid[i][j].addNeighbors(grid)
+// 	}
+// }
 
-for (const [i, col] of grid.entries()) {
-	grid[i] = new Array(rows)
-}
+function createGrid({size: [columns, rows]}: {
+		size: V2
+	}) {
 
-for (const [i, col] of grid.entries()) {
-	for (const [j, row] of col.entries()) {
-		grid[i][j] = new Spot(i, j)
-	}
-}
-
-for (const [i, col] of grid.entries()) {
-	for (const [j, row] of col.entries()) {
-		grid[i][j].addNeighbors(grid)
-	}
-}
-
-start = grid[0][0]
-end = grid[cols - 1][rows - 1]
-openSet.push(start)
-
-while (openSet.length > 0) {
-	let winner = 0
-	for (let [index, spot] of openSet.entries()) {
-		if (spot.f < openSet[winner].f) {
-			winner = index
+	class Spot {
+		i: number = 0
+		j: number = 0
+		f: number = 0
+		g: number = 0
+		h: number = 0
+		neighbors: Spot[] = []
+		previous: undefined | Spot
+	
+		constructor(i: number, j: number) {
+			this.i = i
+			this.j = j
+		}
+	
+		addNeighbors = (grid: any[]) => {
+			const { i, j, neighbors } = this
+			if (i < columns - 1) neighbors.push(grid[i + 1][j])
+			if (i > 0) neighbors.push(grid[i - 1][j])
+			if (j < rows - 1) neighbors.push(grid[i][j + 1])
+			if (j > 0) neighbors.push(grid[i][j - 1])
+			if (i > 0 && j > 0) neighbors.push(grid[i - 1][j - 1])
+			if (i < columns - 1 && j > 0) neighbors.push(grid[i + 1][j - 1])
+			if (i > 0 && j < rows - 1) neighbors.push(grid[i - 1][j + 1])
+			if (i < columns - 1 && j < rows - 1) neighbors.push(grid[i + 1][j + 1])
 		}
 	}
 
-	let current = openSet[winner]
+	const grid = new Array(columns)
 
-	if (current === end) {
-		let temp = current
-		path.push(temp)
-		while (temp.previous) {
-			path.push(temp.previous)
-			temp = temp.previous
-		}
-
-		console.log(path)
-		console.log("DONE!!!")
+	for (const [i, col] of grid.entries()) {
+		grid[i] = new Array(rows)
 	}
 
-	openSet = openSet.filter((spot) => spot !== current)
-	closedSet.push(current)
+	for (const [i, col] of grid.entries()) {
+		for (const [j, row] of col.entries())
+			grid[i][j] = new Spot(i, j)
+	}
 
-	const neighbors = current.neighbors;
-	for (let i = 0; i < neighbors.length; i++) {
-		let neighbor = neighbors[i]
-		if (!closedSet.includes(neighbor)) {
-			const tempG = current.g + 1
+	for (const [i, col] of grid.entries()) {
+		for (const [j, row] of col.entries())
+			grid[i][j].addNeighbors(grid)
+	}
 
-			let newPath = false
-			if (openSet.includes(neighbor)) {
-				if (tempG < neighbor.g) {
-					neighbor.g = tempG
-					newPath = true
+	function findPath({to, from}: {
+			to: V2
+			from: V2
+		}) {
+
+		const start = grid[to[0]][to[1]]
+		const end = grid[from[0]][from[1]]
+
+		let openSet: Spot[] = [start]
+		const closedSet: Spot[] = []
+		const path: Spot[] = []
+
+		while (openSet.length > 0) {
+			let winner = 0
+			for (let [index, spot] of openSet.entries()) {
+				if (spot.f < openSet[winner].f) {
+					winner = index
 				}
-			} else {
-				neighbor.g = tempG
-				newPath = true
-				openSet.push(neighbor)
 			}
 
-			if (newPath) {
-				neighbor.h = heuristic([neighbor.i, neighbor.j], [end.i, end.j])
-				neighbor.f = neighbor.g + neighbor.h
-				neighbor.previous = current
+			let current = openSet[winner]
+
+			if (current === end) {
+				let temp = current
+				path.push(temp)
+				while (temp.previous) {
+					path.push(temp.previous)
+					temp = temp.previous
+				}
+
+				return path
+					.reverse()
+					.map(({i, j}) => [i, j])
+			}
+
+			openSet = openSet.filter((spot) => spot !== current)
+			closedSet.push(current)
+
+			const neighbors = current.neighbors;
+			for (let i = 0; i < neighbors.length; i++) {
+				let neighbor = neighbors[i]
+				if (!closedSet.includes(neighbor)) {
+					const tempG = current.g + 1
+
+					let newPath = false
+					if (openSet.includes(neighbor)) {
+						if (tempG < neighbor.g) {
+							neighbor.g = tempG
+							newPath = true
+						}
+					} else {
+						neighbor.g = tempG
+						newPath = true
+						openSet.push(neighbor)
+					}
+
+					if (newPath) {
+						neighbor.h = heuristic([neighbor.i, neighbor.j], [end.i, end.j])
+						neighbor.f = neighbor.g + neighbor.h
+						neighbor.previous = current
+					}
+				}
 			}
 		}
+
+		return []
 	}
+
+	return {findPath}
 }
 
-// console.log(grid)
+///////////////////
+///////////////////
+
+const grid = createGrid({
+	size: [5, 5],
+})
+
+const path = grid.findPath({
+	from: [0, 0],
+	to: [4, 4],
+})
+
+console.log(path.map(([x, y]) => `[${x}, ${y}]`).join("\n"))
