@@ -1,5 +1,6 @@
 
 import {V2} from "../v2.js"
+import {V3} from "../v3.js"
 
 // const cols = 5
 // const rows = 5
@@ -36,8 +37,24 @@ function heuristic(a: number[], b: number[]) {
 // 	}
 // }
 
-function createGrid({size: [columns, rows]}: {
+export interface Navmesh {
+	vertices: V3[]
+	triangles: V3[]
+}
+
+function makeGridNavmesh({size: [columns, rows]}: {
 		size: V2
+	}) {
+
+	const vertices: V3[] = []
+
+	for (const x of Array(columns)) {
+		
+	}
+}
+
+function makePilot({navmesh}: {
+		 navmesh: Navmesh
 	}) {
 
 	class Spot {
@@ -157,7 +174,7 @@ function createGrid({size: [columns, rows]}: {
 ///////////////////
 ///////////////////
 
-const grid = createGrid({
+const grid = makePilot({
 	size: [5, 5],
 })
 
