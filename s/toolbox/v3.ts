@@ -61,20 +61,20 @@ export namespace v3 {
 		]
 	}
 
-	export function addBy(vector: V3, delta: number): V3 {
-		return applyBy(vector, a => a + delta)
+	export function addBy(vector: V3, addition: number): V3 {
+		return applyBy(vector, a => a + addition)
 	}
 
-	export function multiplyBy(vector: V3, delta: number): V3 {
-		return applyBy(vector, a => a * delta)
+	export function multiplyBy(vector: V3, multiplier: number): V3 {
+		return applyBy(vector, a => a * multiplier)
 	}
 
-	export function divideBy(vector: V3, delta: number): V3 {
+	export function divideBy(vector: V3, divisor: number): V3 {
 		return applyBy(
 			vector,
-			a => delta === 0
+			a => divisor === 0
 				? a
-				: a / delta
+				: a / divisor
 		)
 	}
 
@@ -136,5 +136,10 @@ export namespace v3 {
 		)
 		const radiusSquared = radius ** 2
 		return distanceSquared < radiusSquared
+	}
+
+	export function average(...vectors: V3[]) {
+		const total = add(...vectors)
+		return divideBy(total, vectors.length)
 	}
 }
