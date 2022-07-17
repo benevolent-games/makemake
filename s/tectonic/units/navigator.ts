@@ -43,7 +43,7 @@ export function makeNavigator({
 		unlit: true,
 	})
 
-	loop2d(resolution, resolution, (x, y) => {
+	loop2d([resolution, resolution], ([x, y]) => {
 		positions.push(resolve(x, y))
 	})
 

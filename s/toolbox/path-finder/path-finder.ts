@@ -4,7 +4,6 @@ import {v3, V3} from "../v3.js"
 import {range} from "../range.js"
 import {loop2d} from "../loop2d.js"
 import {Navmesh} from "./types.js"
-// import {makeGridNavmesh} from "./utils/make-grid-navmesh.js"
 
 export function makePilot({navmesh}: {
 		navmesh: Navmesh
@@ -38,31 +37,39 @@ export function makePilot({navmesh}: {
 	const {beacons, edges} = navmesh.pathable
 
 	function pathfind(start: number, goal: number) {
-		function heuristic(index: number) {
+		function heuristicCostToGoal(index: number) {
 			return v3.distance(beacons[index], beacons[goal])
 		}
-		const open = new Set<number>([start])
-		const cameFrom = new Map<number, number>()
-		const g = new Map<number, number>()
-		const f = new Map<number, number>()
-		g.set(start, 0)
-		f.set(start, heuristic(start))
 
-		while (open.size > 0) {
-			const current = lowest(open, f)
+		// sets and map to keep state about each node
+		const openFrontier = new Set<number>([start])
+		const parents = new Map<number, number>()
+		const gCostOfPathSoFar = new Map<number, number>()
+		const fTotalCost = new Map<number, number>()
+
+		// initialize starting node
+		gCostOfPathSoFar.set(start, 0)
+		fTotalCost.set(start, heuristicCostToGoal(start))
+
+		// keep looping until we reach the goal
+		while (openFrontier.size > 0) {
+			const current = lowest(openFrontier, fTotalCost)
+
 			if (current === goal)
-				return reconstructPath(cameFrom, goal)
-			open.delete(current)
-			const neighbors = edges[current].filter(i => !open.has(i))
+				return reconstructPath(parents, goal)
+
+			openFrontier.delete(current)
+			const neighbors = edges[current].filter(i => !openFrontier.has(i))
+
 			for (const neighbor of neighbors) {
-				const previousG = get(g, current)
-				const incrementG = v3.distance(beacons[current], beacons[neighbor])
-				const tentativeG = previousG + incrementG
-				if (tentativeG < get(g, neighbor)) {
-					cameFrom.set(neighbor, current)
-					g.set(neighbor, tentativeG)
-					f.set(neighbor, tentativeG + heuristic(neighbor))
-					open.add(neighbor)
+				const previousCostOfPath = get(gCostOfPathSoFar, current)
+				const costOfStep = v3.distance(beacons[current], beacons[neighbor])
+				const tentativeCost = previousCostOfPath + costOfStep
+				if (tentativeCost < get(gCostOfPathSoFar, neighbor)) {
+					parents.set(neighbor, current)
+					gCostOfPathSoFar.set(neighbor, tentativeCost)
+					fTotalCost.set(neighbor, tentativeCost + heuristicCostToGoal(neighbor))
+					openFrontier.add(neighbor)
 				}
 			}
 		}

@@ -1,13 +1,12 @@
 
-import {loop2d, loop2d2} from "../../loop2d.js"
-import {range} from "../../range.js"
-import {v2, V2} from "../../v2.js"
 import {V3} from "../../v3.js"
+import {V2} from "../../v2.js"
 import {Navmesh} from "../types.js"
-import {indexForCoordinates} from "./index-for-coordinates.js"
+import {range} from "../../range.js"
+import {loop2d} from "../../loop2d.js"
 import {directionality} from "./directionality.js"
 import {getGridNeighbors} from "./get-grid-neighbors.js"
-import {inBounds} from "./in-bounds.js"
+import {indexForCoordinates} from "./index-for-coordinates.js"
 
 export function makeHexNavmesh({size, scale}: {
 		size: V2
@@ -29,7 +28,7 @@ export function makeHexNavmesh({size, scale}: {
 	const beacons: V3[] = Array(gridcount)
 	const edges: number[][] = Array(gridcount)
 
-	loop2d2(size, ([x, y], index) => {
+	loop2d(size, ([x, y], index) => {
 		const isOddRow = (y % 2) === 1
 		const scaledX = isOddRow
 			? oddRowOffset + (x * scale)
