@@ -1,7 +1,7 @@
 
 import {Suite, expect} from "cynic"
-import {makePilot} from "./toolbox/path-finder/path-finder.js"
-import {makeHexNavmesh} from "./toolbox/path-finder/utils/make-hex-navmesh.js"
+import {makePilot} from "./pilot/path-finder.js"
+import {makeHexNavmesh} from "./pilot/utils/make-hex-navmesh.js"
 
 export default <Suite>{
 	// async "testing suite works"() {

@@ -1,9 +1,9 @@
 
-import {V3} from "../../v3.js"
-import {V2} from "../../v2.js"
 import {Navmesh} from "../types.js"
-import {range} from "../../range.js"
-import {loop2d} from "../../loop2d.js"
+import {V3} from "../../toolbox/v3.js"
+import {V2} from "../../toolbox/v2.js"
+import {range} from "../../toolbox/range.js"
+import {loop2d} from "../../toolbox/loop2d.js"
 import {directionality} from "./directionality.js"
 import {getGridNeighbors} from "./get-grid-neighbors.js"
 import {indexForCoordinates} from "./index-for-coordinates.js"

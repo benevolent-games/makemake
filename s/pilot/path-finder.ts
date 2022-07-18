@@ -1,8 +1,8 @@
 
-import {V2} from "../v2.js"
-import {v3, V3} from "../v3.js"
-import {range} from "../range.js"
-import {loop2d} from "../loop2d.js"
+import {V2} from "../toolbox/v2.js"
+import {v3, V3} from "../toolbox/v3.js"
+import {range} from "../toolbox/range.js"
+import {loop2d} from "../toolbox/loop2d.js"
 import {Navmesh} from "./types.js"
 
 export function makePilot({navmesh}: {

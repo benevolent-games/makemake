@@ -1,5 +1,5 @@
 
-import {V2} from "../../v2.js"
+import {V2} from "../../toolbox/v2.js"
 
 export function inBounds([x, y]: V2, [columns, rows]: V2) {
 	const xGood = (x >= 0) && (x < columns)

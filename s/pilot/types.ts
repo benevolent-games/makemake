@@ -1,6 +1,5 @@
 
-import {V2} from "../v2.js"
-import {V3} from "../v3.js"
+import {V3} from "../toolbox/v3.js"
 
 export interface Navmesh {
 	traversable: {

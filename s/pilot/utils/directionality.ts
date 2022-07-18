@@ -1,5 +1,5 @@
 
-import {V2} from "../../v2.js"
+import {V2} from "../../toolbox/v2.js"
 
 export namespace directionality {
 	export const cardinal: V2[] = [
