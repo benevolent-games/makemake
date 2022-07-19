@@ -77,7 +77,32 @@ export function makePilot({navmesh}: {
 		return []
 	}
 
-	return {pathfind}
+	function findNearestBeacon(point: V3) {
+		let nearest: number = 0
+		let nearestDistance: number = Infinity
+		for (const [index, beacon] of navmesh.pathable.beacons.entries()) {
+			if (beacon) {
+				const distance = v3.distance(beacon, point)
+				if (distance < nearestDistance) {
+					nearest = index
+					nearestDistance = distance
+				}
+			}
+		}
+		return nearest
+	}
+
+	function findPath({to, from}: {
+			to: V3
+			from: V3
+		}) {
+		const start = findNearestBeacon(from)
+		const goal = findNearestBeacon(to)
+		const path = pathfind(start, goal)
+		return path
+	}
+
+	return {pathfind, findPath}
 
 	// function findPath({to, from}: {
 	// 		to: V2

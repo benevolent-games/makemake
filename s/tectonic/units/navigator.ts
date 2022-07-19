@@ -1,7 +1,7 @@
 
-import {Matrix} from "@babylonjs/core/Maths/math.js"
+import {Color4, Matrix, Vector3} from "@babylonjs/core/Maths/math.js"
 
-import {V3} from "../../toolbox/v3.js"
+import {v3, V3} from "../../toolbox/v3.js"
 import {Theater} from "../theater/theater.js"
 import {spawnBox} from "../hand/spawn-box.js"
 import {loop2d} from "../../toolbox/loop2d.js"
@@ -11,6 +11,7 @@ import {Navmesh} from "../../pilot/types.js"
 import {getGridNeighbors} from "../../pilot/utils/get-grid-neighbors.js"
 import {directionality} from "../../pilot/utils/directionality.js"
 import {indexForCoordinates} from "../../pilot/utils/index-for-coordinates.js"
+import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 
 function hexpoint([x, y]: V2) {
 	const isOddRow = (y % 2) === 1
@@ -86,6 +87,26 @@ export function makeNavigator({
 		},
 	})
 
+	const {beacons, edges} = navmesh.pathable
+
+	// const edgeColor = new Color4(0, 1, 1, 1)
+	const lines: Vector3[][] = []
+	for (const [index, connected] of edges.entries()) {
+		if (connected) {
+			for (const connection of connected) {
+				const from = new Vector3(...v3.addBy(beacons[index], 1))
+				const to = new Vector3(...v3.addBy(beacons[connection], 1))
+				lines.push([from, to])
+			}
+		}
+	}
+	const lineSystem = MeshBuilder.CreateLineSystem("lines", {
+		lines,
+		useVertexAlpha: false,
+	}, theater.scene)
+	lineSystem.material.zOffset = 1000
+
+
 	const box = spawnBox({
 		size: 1,
 		color: [1, 1, 1],
@@ -99,4 +120,6 @@ export function makeNavigator({
 		.map(p => Matrix.Translation(...p))
 	
 	box.thinInstanceAdd(matrices)
+
+	return {navmesh}
 }

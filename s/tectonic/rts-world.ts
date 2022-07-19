@@ -22,6 +22,8 @@ import {cursorIconBeta} from "./cursor/icons/cursor-icon-beta.js"
 import {setupFullscreenHandler} from "./world/setup-fullscreen.js"
 import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
 import {makeInputTracker, nameForMouseButton} from "./inputs/input-tracker.js"
+import {V3} from "../toolbox/v3.js"
+import {makePilot} from "../pilot/path-finder.js"
 
 export function makeRtsWorld() {
 	const {container, wirePartsUpToDom} = makeWorldContainer()
@@ -95,11 +97,13 @@ export function makeRtsWorld() {
 
 			const navigator = makeNavigator({
 				mapSize,
-				resolution: 256,
+				resolution: 128,
 				cliffSlopeFactor,
 				theater,
 				terrainGenerator,
 			})
+
+			const pilot = makePilot({navmesh: navigator.navmesh})
 
 			// const unit = makeUnit({
 			// 	terrainGenerator,
@@ -107,11 +111,13 @@ export function makeRtsWorld() {
 			// })
 
 			const hand = makeHand({theater, cursor, ground})
+			let previousPoint: undefined | V3
+
 			inputs.listeners.mousedown.add(event => {
 				const name = nameForMouseButton(event.button)
 				if (name === "mouse_primary" || name === "mouse_secondary") {
 					const position = hand.pickPointOnGround()
-					if (position)
+					if (position) {
 						spawnBox({
 							scene: theater.scene,
 							size: 5,
@@ -119,6 +125,25 @@ export function makeRtsWorld() {
 							color: [1, 0, 0],
 							unlit: true,
 						})
+						if (previousPoint) {
+							const path = pilot.findPath({
+								to: position,
+								from: previousPoint,
+							})
+							for (const index of path) {
+								const point = navigator.navmesh.pathable.beacons[index]
+								spawnBox({
+									scene: theater.scene,
+									size: 3,
+									position: point,
+									color: [1, 1, 0],
+									unlit: true,
+								})
+							}
+							console.log(path)
+						}
+						previousPoint = position
+					}
 				}
 			})
 
