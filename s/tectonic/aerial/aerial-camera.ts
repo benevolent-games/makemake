@@ -33,7 +33,7 @@ export function makeAerialCamera({
 
 	const camera = new ArcRotateCamera(
 		"cam",
-		0.25 * circle,
+		-0.25 * circle,
 		0.15 * circle,
 		targetRadius,
 		v3.toBabylon([0, targetHeight, 0]),
@@ -91,12 +91,12 @@ export function makeAerialCamera({
 	cursor.listeners.mousemove.add(({movementX, movementY}) => {
 		if (isPressingPanButton()) {
 			camera.target.x = cap(
-				camera.target.x + (movementX * (camera.radius / 200)),
+				camera.target.x - (movementX * (camera.radius / 200)),
 				boundaryA,
 				boundaryB,
 			)
 			camera.target.z = cap(
-				camera.target.z - (movementY * (camera.radius / 200)),
+				camera.target.z + (movementY * (camera.radius / 200)),
 				boundaryA,
 				boundaryB,
 			)
@@ -113,14 +113,14 @@ export function makeAerialCamera({
 			let movementY = 0
 
 			if (py > 0.95)
-				movementY -= 1
-			else if (py < 0.05)
 				movementY += 1
+			else if (py < 0.05)
+				movementY -= 1
 
 			if (px > 0.95)
-				movementX += 1
-			else if (px < 0.05)
 				movementX -= 1
+			else if (px < 0.05)
+				movementX += 1
 
 			if (movementY !== 0)
 				camera.target.z = cap(
