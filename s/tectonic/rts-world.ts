@@ -3,6 +3,7 @@ import "@babylonjs/core/Materials/standardMaterial.js"
 import "@babylonjs/loaders/glTF/2.0/index.js"
 import "@babylonjs/core/Lights/Shadows/index.js"
 import "@babylonjs/core/Culling/ray.js"
+import "@babylonjs/core/Meshes/instancedMesh.js"
 
 import {makeHand} from "./hand/hand.js"
 import {makeUnit} from "./units/unit.js"
@@ -11,7 +12,7 @@ import {spawnBox} from "./hand/spawn-box.js"
 import {makeCursor} from "./cursor/cursor.js"
 import {makeGround} from "./landscape/ground.js"
 import {makeTheater} from "./theater/theater.js"
-import {makeNavigator} from "./units/navigator.js"
+// import {makeNavigator} from "./units/navigator.js"
 import {makeSettings} from "./settings/settings.js"
 import {setupLighting} from "./landscape/lighting.js"
 import {makeWorldContainer} from "./world/container.js"
@@ -24,6 +25,8 @@ import {makeTerrainGenerator} from "./landscape/terrain-generator.js"
 import {makeInputTracker, nameForMouseButton} from "./inputs/input-tracker.js"
 import {V3} from "../toolbox/v3.js"
 import {makePilot} from "../pilot/path-finder.js"
+import {generateHexagonalNavmeshForTerrain} from "./navigation/generate-hexagonal-navmesh-for-terrain.js"
+import {visualizeNavmesh} from "./navigation/visualize-navmesh.js"
 
 export function makeRtsWorld() {
 	const {container, wirePartsUpToDom} = makeWorldContainer()
@@ -79,8 +82,9 @@ export function makeRtsWorld() {
 				treeDensityScale: 200,
 				layers: [
 					{scale: 800, amplitude: 100, ease: v => easing.exponential(v * 0.7)},
-					{scale: 400, amplitude: 60, ease: easing.sine},
+					// {scale: 400, amplitude: 60, ease: easing.sine},
 					{scale: 200, amplitude: 20, ease: easing.sine},
+					// {scale: 60, amplitude: 5, ease: easing.linear},
 				],
 			})
 			sampleHeight = terrainGenerator.sampleHeight
@@ -95,57 +99,70 @@ export function makeRtsWorld() {
 				groundShaderUrl: "https://dl.dropbox.com/s/gp5yabh4zjpi7iz/terrain-shader-10.json",
 			})
 
-			const navigator = makeNavigator({
-				mapSize,
-				resolution: 128,
-				cliffSlopeFactor,
-				theater,
-				terrainGenerator,
-			})
+			const navmesh = (() => {
+				const resolution = 128
+				const halfMap = mapSize / 2
+				const chunkSize = mapSize / resolution
+				return generateHexagonalNavmeshForTerrain({
+					extent: [resolution + 1, resolution + 1],
+					cliffSlopeFactor,
+					terrainGenerator,
+					resolve2d: ([x, y]) => {
+						const nx = (x * chunkSize) - halfMap
+						const ny = (y * chunkSize) - halfMap
+						return [nx, ny]
+					},
+				})
+			})()
 
-			const pilot = makePilot({navmesh: navigator.navmesh})
+			visualizeNavmesh({navmesh, theater})
 
-			// const unit = makeUnit({
-			// 	terrainGenerator,
+			// const navigator = makeNavigator({
+			// 	mapSize,
 			// 	theater,
+			// 	resolution: 128,
+			// 	cliffSlopeFactor,
+			// 	terrainGenerator,
 			// })
 
-			const hand = makeHand({theater, cursor, ground})
-			let previousPoint: undefined | V3
+			// const pilot = makePilot({navmesh})
 
-			inputs.listeners.mousedown.add(event => {
-				const name = nameForMouseButton(event.button)
-				if (name === "mouse_primary" || name === "mouse_secondary") {
-					const position = hand.pickPointOnGround()
-					if (position) {
-						spawnBox({
-							scene: theater.scene,
-							size: 5,
-							position,
-							color: [1, 0, 0],
-							unlit: true,
-						})
-						if (previousPoint) {
-							const path = pilot.findPath({
-								to: position,
-								from: previousPoint,
-							})
-							for (const index of path) {
-								const point = navigator.navmesh.pathable.beacons[index]
-								spawnBox({
-									scene: theater.scene,
-									size: 3,
-									position: point,
-									color: [1, 1, 0],
-									unlit: true,
-								})
-							}
-							console.log(path)
-						}
-						previousPoint = position
-					}
-				}
-			})
+			// const hand = makeHand({theater, cursor, ground})
+			// let previousPoint: undefined | V3
+
+			// inputs.listeners.mousedown.add(event => {
+			// 	const name = nameForMouseButton(event.button)
+			// 	if (name === "mouse_primary" || name === "mouse_secondary") {
+			// 		const position = hand.pickPointOnGround()
+			// 		if (position) {
+			// 			spawnBox({
+			// 				scene: theater.scene,
+			// 				size: 5,
+			// 				position,
+			// 				color: [1, 0, 0],
+			// 				unlit: true,
+			// 			})
+			// 			if (previousPoint) {
+			// 				const path = pilot.findPath({
+			// 					to: position,
+			// 					from: previousPoint,
+			// 				})
+			// 				for (const index of path) {
+			// 					const point = navigator.navmesh.pathable.beacons[index]
+			// 					spawnBox({
+			// 						scene: theater.scene,
+			// 						size: 3,
+			// 						position: point,
+			// 						color: [1, 1, 0],
+			// 						unlit: true,
+			// 					})
+			// 				}
+			// 				console.log(path)
+			// 			}
+			// 			previousPoint = position
+			// 		}
+			// 	}
+			// })
 
 			const {shadowControl} = setupLighting({
 				theater,
