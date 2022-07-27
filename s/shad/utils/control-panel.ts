@@ -1,5 +1,5 @@
 
-import {html} from "lit"
+import {html, render} from "lit"
 import {view} from "@chasemoskal/magical/x/view/view.js"
 import {css} from "@chasemoskal/magical/x/camel-css/camel-css-lit.js"
 
@@ -80,10 +80,12 @@ export const ControlPanel = view(use => ({rebuildMaterial}: {
 					${Object.entries(textures).map(([name, url], index) => html`
 						<li data-index="${index}">
 							<button class=trash @click=${() => {
-								const copy = {...textures}
-								delete copy[name]
-								setTextures(copy)
-							}}>❌</button>
+									const copy = {...textures}
+									delete copy[name]
+									setTextures(copy)
+								}}>
+									❌
+							</button>
 							<img alt="" src="${url}"/>
 							<code>${name}</code>
 							<a part=link target=_blank href="${url}">${url}</a>
@@ -187,9 +189,9 @@ input {
 		border: none;
 		color: inherit;
 		opacity: 0.7;
-	}
-	.trash:hover {
-		opacity: 1;
+		^:hover {
+			opacity: 1;
+		}
 	}
 	.rebuild {
 		display: block;
@@ -199,3 +201,18 @@ input {
 }
 
 `
+
+export function createControlPanelElement({rebuildMaterial, setUniformData}: {
+		rebuildMaterial: (spec: ShaderSpec) => Promise<void>
+		setUniformData: (data: UniformData) => void
+	}) {
+	const element = document.createElement("div")
+	element.className = "controlpanel"
+	render(html`
+		${ControlPanel({
+			rebuildMaterial,
+			setUniformData,
+		})}
+	`, element)
+	return {element}
+}
