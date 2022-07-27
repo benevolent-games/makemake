@@ -21,7 +21,7 @@
 		"bundledemo": "rollup x/demo.js --plugin @rollup/plugin-node-resolve --format iife --file x/demo.bundle.js && terser --compress --mangle -- x/demo.bundle.js > x/demo.bundle.min.js && echo 'done demo.bundle.min.js'",
 		"bundledemo-watch": "chokidar 'x/**/*.js' -i 'x/**/*.{bundle.js,min.js}' -c 'npm run -s bundledemo'",
 		"watch": "tsc -w",
-		"start": "http-server",
+		"start": "http-server --cors",
 		"test": "cynic node x/tests.test.js"
 	},
 	"keywords": [

@@ -43,4 +43,5 @@
 	"typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
 	"javascript.preferences.importModuleSpecifierEnding": "js",
 	"typescript.preferences.importModuleSpecifierEnding": "js",
+	"lit-plugin.rules.no-invalid-css": "off",
 }
