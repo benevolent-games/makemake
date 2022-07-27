@@ -19,6 +19,7 @@
 
 🏞️ [**terrarium**](./s/terrarium/) outdoor world generator  
 👹 [**underworld**](./s/underworld/) dungeon world generator  
+🐟 [**shad**](./s/shad/) webgl glsl shader laboratory  
 👨‍✈️ [**pilot**](./s/pilot/) ✨ smart a* pathfinder  
 🐙 [**octo**](./s/octo/) ✨ multiplayer netcode for action games  
 🧺 [**weaver**](./s/weaver/) ✨ multiplayer netcode for realtime strategy games  
