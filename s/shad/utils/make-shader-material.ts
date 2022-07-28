@@ -1,5 +1,6 @@
 
 import {Scene} from "@babylonjs/core/scene.js"
+import {Vector3} from "@babylonjs/core/Maths/math.js"
 import {Texture} from "@babylonjs/core/Materials/Textures/texture.js"
 import {ShaderMaterial} from "@babylonjs/core/Materials/shaderMaterial.js"
 
@@ -12,18 +13,21 @@ export function makeShaderMaterial({scene, spec, sources}: {
 	}) {
 
 	const attributes = [
-		"position",
-		"normal",
 		"uv",
-		"time",
+		"normal",
+		"position",
 	]
 
 	const uniforms = [
+		"time",
+		"view",
 		"world",
 		"worldView",
-		"worldViewProjection",
-		"view",
 		"projection",
+		"worldViewProjection",
+
+		"cameraPosition",
+
 		...spec.uniformSpecs.map(s => s.name),
 	]
 

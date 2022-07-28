@@ -11,8 +11,9 @@ import {setupShaderScene} from "./utils/setup-shader-scene.js"
 import {makeShaderMaterial} from "./utils/make-shader-material.js"
 import {createControlPanelElement} from "./utils/control-panel.js"
 import {loadCustomMaterialShader} from "./utils/load-custom-material-shader.js"
+import {Vector3} from "@babylonjs/core/Maths/math.js"
 
-const {canvas, engine, scene} = setupShaderScene()
+const {canvas, engine, scene, renderloop} = setupShaderScene()
 ;(<any>window).engine = engine
 const zone = <HTMLDivElement>document.querySelector(".zone")!
 zone.append(canvas)
@@ -38,9 +39,20 @@ const controlPanel = createControlPanelElement({
 	async rebuildMaterial(spec) {
 		const sources = await loadCustomMaterialShader(spec.shaderUrl + "?q=" + Date.now())
 		const {material, dispose} = makeShaderMaterial({scene, spec, sources})
+		function update() {
+			const cameraPosition = scene.activeCamera
+				? scene.activeCamera.globalPosition
+				: new Vector3(0, 0, 0)
+			material.setVector3("cameraPosition", cameraPosition)
+			material.setFloat("time", Date.now() % 1_000_000)
+		}
+		renderloop.add(update)
 		cube.material = material
 		disposePreviousShader()
-		disposePreviousShader = dispose
+		disposePreviousShader = () => {
+			renderloop.delete(update)
+			dispose()
+		}
 		return nap(1000)
 	},
 	setUniformData(data) {

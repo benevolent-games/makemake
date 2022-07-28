@@ -40,8 +40,14 @@ export function setupShaderScene() {
 	sunlight.intensity = 1.5
 	backlight.intensity = 0.2
 
-	camera.attachControl(canvas)
-	engine.runRenderLoop(() => scene.render())
+	const renderloop = new Set<() => void>()
 
-	return {canvas, engine, scene, camera}
+	camera.attachControl(canvas)
+	engine.runRenderLoop(() => {
+		for (const r of renderloop)
+			r()
+		scene.render()
+	})
+
+	return {canvas, engine, scene, camera, renderloop}
 }

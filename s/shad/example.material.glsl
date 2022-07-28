@@ -1,30 +1,43 @@
 
 precision highp float;
 
-// Attributes
-attribute vec3 position;
 attribute vec2 uv;
+attribute vec3 normal;
+attribute vec3 position;
 
-// Uniforms
+uniform float time;
+uniform mat4 world;
 uniform mat4 worldViewProjection;
 
-// Normal
-varying vec2 vUV;
+varying vec2 v_uv;
+varying vec3 v_position;
+varying vec4 v_worldPosition;
 
 void main(void) {
 	gl_Position = worldViewProjection * vec4(position, 1.0);
-	vUV = uv;
+	v_uv = uv;
+	v_position = position;
+	v_worldPosition = world * vec4(position, 1.0);
 }
 
 ////////////////////////////////
 ////////////////////////////////
 
-precision mediump float;
+precision highp float;
 
-varying vec2 vUV;
+uniform float time;
+uniform vec3 cameraPosition;
+
 uniform sampler2D myTexture;
 
+varying vec2 v_uv;
+varying vec3 v_position;
+varying vec4 v_worldPosition;
+
 void main(void) {
-	gl_FragColor = texture2D(myTexture, vUV);
-	// gl_FragColor = vec4(1.0, 0.8, 1.0, 1.0);
+	vec3 direction = normalize(cameraPosition - v_worldPosition.xyz);
+	vec4 tex = texture2D(myTexture, v_uv);
+	vec3 color = direction * tex.xyz;
+	float strobe = mod(time, 3000.0) / 3000.0;
+	gl_FragColor = vec4(color + (strobe * 0.5), 1.0);
 }
