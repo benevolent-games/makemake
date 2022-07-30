@@ -1,17 +1,17 @@
 
 import "@babylonjs/core/Materials/standardMaterial.js"
 
+import {Vector3} from "@babylonjs/core/Maths/math.js"
 import {Color3} from "@babylonjs/core/Maths/math.color.js"
 import {MeshBuilder} from "@babylonjs/core/Meshes/meshBuilder.js"
 import {StandardMaterial} from "@babylonjs/core/Materials/standardMaterial.js"
 
 import {nap} from "../toolbox/nap.js"
+import {fetchText} from "./utils/fetch-text.js"
 import {makeStatsDisplay} from "./utils/stats-display.js"
 import {setupShaderScene} from "./utils/setup-shader-scene.js"
 import {makeShaderMaterial} from "./utils/make-shader-material.js"
 import {createControlPanelElement} from "./utils/control-panel.js"
-import {loadCustomMaterialShader} from "./utils/load-custom-material-shader.js"
-import {Vector3} from "@babylonjs/core/Maths/math.js"
 
 const {canvas, engine, scene, renderloop} = setupShaderScene()
 ;(<any>window).engine = engine
@@ -37,7 +37,11 @@ let disposePreviousShader = () => {}
 
 const controlPanel = createControlPanelElement({
 	async rebuildMaterial(spec) {
-		const sources = await loadCustomMaterialShader(spec.shaderUrl + "?q=" + Date.now())
+		const [vertex, fragment] = await Promise.all([
+			fetchText(spec.vertexShaderUrl + "?q=" + Date.now()),
+			fetchText(spec.fragmentShaderUrl + "?q=" + Date.now()),
+		])
+		const sources = {vertex, fragment}
 		const {material, dispose} = makeShaderMaterial({scene, spec, sources})
 		function update() {
 			const cameraPosition = scene.activeCamera

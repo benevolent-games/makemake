@@ -13,7 +13,8 @@ export interface UniformData {
 }
 
 export interface ShaderSpec {
-	shaderUrl: string
+	vertexShaderUrl: string
+	fragmentShaderUrl: string
 	textures: {[key: string]: string}
 	uniformSpecs: UniformSpec[]
 	uniformData: UniformData
@@ -26,7 +27,8 @@ export const ControlPanel = view(use => ({rebuildMaterial}: {
 
 	const [isLoading, setIsLoading] = use.state(false)
 	const [isPanelOpen, setIsPanelOpen] = use.state(false)
-	const [shaderUrl, setShaderUrl] = use.state("/s/shad/example.material.glsl")
+	const [vertexShaderUrl, setVertexShaderUrl] = use.state("/s/shad/example.vertex.glsl")
+	const [fragmentShaderUrl, setFragmentShaderUrl] = use.state("/s/shad/example.fragment.glsl")
 	const [textures, setTextures] = use.state({myTexture: "https://i.imgur.com/O86pwOD.png"} as {[key: string]: string})
 	const [uniformSpecs, setUniformSpecs] = use.state([])
 	const [uniformData, setUniformData] = use.state({} as UniformData)
@@ -41,11 +43,15 @@ export const ControlPanel = view(use => ({rebuildMaterial}: {
 		try {
 			setIsLoading(true)
 			await rebuildMaterial({
-				shaderUrl,
+				vertexShaderUrl,
+				fragmentShaderUrl,
 				textures,
 				uniformSpecs,
 				uniformData,
 			})
+		}
+		catch(error) {
+			console.error(error)
 		}
 		finally {
 			setIsLoading(false)
@@ -69,12 +75,27 @@ export const ControlPanel = view(use => ({rebuildMaterial}: {
 			<div class=shaderbuilder>
 				<label>
 					<span>
-						shader url (like <a part=link target=_blank href="/s/shad/example.material.glsl">example.material.glsl</a>)
+						vertex shader url (like <a part=link target=_blank href="/s/shad/example.vertex.glsl">example.vertex.glsl</a>)
 					</span>
-					<input type="text" value="${shaderUrl}" @change=${(event: InputEvent) => {
-						const {value} = event.target as HTMLInputElement
-						setShaderUrl(value)
-					}}/>
+					<input
+						type="text"
+						value="${vertexShaderUrl}"
+						@change=${(event: InputEvent) => {
+							const {value} = event.target as HTMLInputElement
+							setVertexShaderUrl(value)
+						}}/>
+				</label>
+				<label>
+					<span>
+						fragment shader url (like <a part=link target=_blank href="/s/shad/example.fragment.glsl">example.fragment.glsl</a>)
+					</span>
+					<input
+						type="text"
+						value="${fragmentShaderUrl}"
+						@change=${(event: InputEvent) => {
+							const {value} = event.target as HTMLInputElement
+							setFragmentShaderUrl(value)
+						}}/>
 				</label>
 				<ul class=textures>
 					${Object.entries(textures).map(([name, url], index) => html`
@@ -149,6 +170,7 @@ button {
 }
 
 input {
+	font-size: inherit;
 	background: #333;
 	color: #ccc;
 	border: 1px solid #444a;
@@ -158,6 +180,7 @@ input {
 
 .shaderbuilder {
 	font-family: monospace;
+	font-size: 0.8em;
 	> * {
 		margin-top: 1em;
 	}
