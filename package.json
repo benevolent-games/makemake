@@ -39,6 +39,7 @@
 	},
 	"devDependencies": {
 		"@rollup/plugin-node-resolve": "^13.3.0",
+		"@webgpu/types": "^0.1.21",
 		"chokidar-cli": "^3.0.0",
 		"cynic": "0.1.0-dev.16",
 		"http-server": "^14.1.0",
